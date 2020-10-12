@@ -11,7 +11,7 @@
         </foreach>
     </insert>
 
-    <select id="mailSelect" resultType="com.example.getmail.bean.EmailConfig" >
+    <select id="mailSelect" resultType="com.example.getmail.entity.EmailConfig" >
         SELECT email_id,email FROM email_config where username=#{username}
     </select>
         <update id="mailUpdate" parameterType="com.example.getmail.mapper.GetMailMapper">
@@ -42,8 +42,8 @@
     <!--邮箱配置end-->
 
     <!--同步邮箱数据-->
-    <insert  id="transferfromemail" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="email_data_id" useGeneratedKeys="true" >
-        insert into email_data (email_ref_id,sender, title, content,receivetime,tag,owner,createtime,updatetime) values
+    <insert  id="transferfromemail" parameterType="com.example.getmail.mapper.GetMailMapper" >
+        replace into email_data (email_ref_id,sender, title, content,receivetime,tag,owner,createtime,updatetime) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.email_ref_id},
             #{cus.sender},
@@ -57,10 +57,10 @@
         </foreach>
     </insert>
 
-    <select id="maildataSelect" resultType="com.example.getmail.bean.EmailData" >
+    <select id="maildataSelect" resultType="com.example.getmail.entity.EmailData" >
         SELECT title FROM email_data
     </select>
-    <select id="maildatacontent" resultType="com.example.getmail.bean.EmailData" >
+    <select id="maildatacontent" resultType="com.example.getmail.entity.EmailData" >
         SELECT content FROM email_data where owner=#{owner}
     </select>
      <!--生成日程表-->
@@ -79,5 +79,17 @@
             #{cus.source})
         </foreach>
     </insert>
+
+    <!--拉取email——data中数据生成日程-->
+    <insert  id="plantableInsert" parameterType="com.example.getmail.mapper.GetMailMapper"  >
+        insert  into plantable (username,title, content,createtime) select owner,title, content,createtime from email_data
+    </insert>
+    <!--查询当前周-->
+    <select id="selectThisWeek" resultType="com.example.getmail.entity.PlanTable" >
+        SELECT * FROM plantable where yearweek(date_format(createtime,'%Y-%m-%d')) = YEARWEEK(now());
+    </select>
+    <select id="getCron" resultType="com.example.getmail.bean.CronConfig" >
+        SELECT cron FROM cron_config WHERE cron_id=1
+    </select>
 
 </mapper>

@@ -1,65 +1,69 @@
 package com.example.getmail.controller;
 
-import com.example.getmail.bean.EmailConfig;
-import com.example.getmail.bean.MailBean;
+import com.example.getmail.bean.AddEmailConfigRequest;
+import com.example.getmail.bean.AddEmailConfigResponse;
+import com.example.getmail.entity.EmailConfig;
+import com.example.getmail.constant.ErrorCode;
+import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.GetMailService;
-import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
-import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
-import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
+import lombok.extern.slf4j.Slf4j;
 
-import microsoft.exchange.webservices.data.core.service.item.Item;
-import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-import microsoft.exchange.webservices.data.credential.WebCredentials;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
-import microsoft.exchange.webservices.data.search.FindItemsResults;
-import microsoft.exchange.webservices.data.search.ItemView;
-import microsoft.exchange.webservices.data.core.service.folder.Folder;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
-import java.math.BigInteger;
-import java.net.URI;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+@Slf4j(topic = "emailConfig")
 @RestController
-public class ReadExchangeMail {
+@Configuration      //1.主要用于标记配置类，兼备Component的效果。
+@EnableScheduling
+@Component
+public class ReadExchangeMail  {
     @Resource
     private GetMailService getMailService;
+    private GetMailMapper getMailMapper ;
 
-    @ResponseBody
-    @RequestMapping(value = "/emailconfig/add", produces = "application/json;charset=utf-8")
-    public String insertMail(String username,String email,String password){
+    //添加邮箱
+    @PostMapping(value = "/emailConfig/add", produces = "application/json;charset=utf-8")
+    public AddEmailConfigResponse insertMail(@RequestBody AddEmailConfigRequest request){
+        AddEmailConfigResponse response=new AddEmailConfigResponse();
         List<EmailConfig> list = new ArrayList<>();
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
         //配置邮箱列表
         EmailConfig mail = new EmailConfig();
-        mail.setUsername(username);
-        mail.setEmail(email);
-        mail.setPassword(password);
+        mail.setUsername(request.getUsername());
+        mail.setEmail(request.getEmail());
+        mail.setPassword(request.getPassword());
         mail.setCreatetime(time);
         mail.setUpdatetime(time);
         mail.setEncrypt("1");
-        mail.setFlag("0");
+        mail.setFlag("1");
         list.add(mail);
-        getMailService.mailInsert(list);
-        return "添加成功";
+        try {
+            getMailService.mailInsert(list);
+            response.setErrorCode(ErrorCode.SUCCESS);
+        }catch(Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/emailconfig/list", produces = "application/json;charset=utf-8")
+    //查询邮箱列表
+    @RequestMapping(value = "/emailConfig/list", produces = "application/json;charset=utf-8")
     public List<EmailConfig> mailSelect(String username){
         return getMailService.mailSelect(username);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/emailconfig/delete", produces = "application/json;charset=utf-8")
+    //post 删除邮箱
+    @RequestMapping(value = "/emailConfig/delete", produces = "application/json;charset=utf-8")
     public String mailDelete(){
         Integer[] email_id={8,9,10};
         List<Integer> list = new ArrayList<>();
@@ -71,10 +75,27 @@ public class ReadExchangeMail {
         return "删除成功";
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/dailyplan/transferfromemail", produces = "application/json;charset=utf-8")
-    public String makeplan(String username) throws Exception {
-        getMailService.transferfromemail(username);
-        return "操作成功";
+    //@Scheduled(cron = "0 0 24 * * * ?")//每晚12点同步一次
+    //拉取邮箱数据
+    @RequestMapping(value = "/dailyPlan/getMessageFromEmail", produces = "application/json;charset=utf-8")
+    public void makeplan() throws Exception {
+         getMailService.transferfromemail();
+         System.out.println("操作成功");
+
     }
+    //生成日程表
+    @RequestMapping(value = "/dailyPlan/transferFromEmail", produces = "application/json;charset=utf-8")
+    public int plantableInsert()  {
+        return getMailService.plantableInsert();
+
+    }
+    //查询当前周
+    //@Scheduled(cron = "0 0 24 * * * ?")//每晚12点同步一次
+    @RequestMapping(value = "/dailyplan/listcurrentweek", produces = "application/json;charset=utf-8")
+    public void selectThisWeek () {
+        System.out.println("操作成功");
+        getMailService.selectThisWeek();
+    }
+
+
 }

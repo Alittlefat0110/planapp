@@ -1,15 +1,17 @@
 package com.example.getmail;
 
-import com.example.getmail.bean.EmailData;
-import com.example.getmail.bean.MailBean;
-import com.example.getmail.bean.PlanData;
+import com.example.getmail.entity.EmailData;
 import com.example.getmail.mapper.GetMailMapper;
+import com.example.getmail.service.GetMailService;
+import com.example.getmail.service.impl.util;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
 import microsoft.exchange.webservices.data.core.service.folder.Folder;
 import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
+import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.Attachment;
@@ -17,21 +19,26 @@ import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.net.URI;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 @RestController
+@Component
+@EnableScheduling
 @SpringBootTest
 class GetmailApplicationTests {
 	EmailData emailData =new EmailData();
+	util a;
     @Resource
 	private GetMailMapper getMailMapper ;
+	private GetMailService getMailService;
 	@Test
 	public void  getUserUnReadMail() throws Exception {
 
@@ -125,6 +132,8 @@ class GetmailApplicationTests {
 		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
 		System.out.println(inbox.getDisplayName());
 		ItemView itemView = new ItemView(10000);
+		itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
+
 		// 查询，插入数据
 		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
 		ArrayList<Item> items = findResults.getItems();
@@ -137,7 +146,9 @@ class GetmailApplicationTests {
 			h.setEmail_ref_id(items.get(i).getId().toString()); //message ID
 			h.setSender(message.getSender().toString()); //发件人
 			h.setTitle(items.get(i).getSubject()); //主题
-			h.setContent(message.getBody().toString()); //邮件内容
+			String html_body = message.getBody().toString();
+			String body = a.getContentFromHtml(html_body);
+			h.setContent(body); //邮件内容
 			h.setReceivetime(items.get(i).getDateTimeReceived()); //收件时间
 			h.setOwner("mine");
 			h.setTag("1");
@@ -147,7 +158,7 @@ class GetmailApplicationTests {
 			list.add(h);
 			getMailMapper.transferfromemail(list);
 		}
-
+/**
 		//getMailMapper.transferfromemail(list);
 		List<PlanData> list1= new ArrayList<>();
 		PlanData p = new PlanData();
@@ -165,7 +176,21 @@ class GetmailApplicationTests {
 		list1.add(p);
 		 getMailMapper.plandataInsert(list1);
 		System.out.println("操作成功");
+ */
 	}
 
 
+	@Test
+	public void  plantable(){
+		getMailMapper.plantableInsert();
+		System.out.println("插入成功");
+
+	}
+	@Test
+	@Scheduled(cron = "0/3 * * * * ?")
+	//@ResponseBody
+	public void contextLoads() {
+		System.out.println(getMailMapper.selectThisWeek());
+	}
 }
+

@@ -1,4 +1,4 @@
-package com.example.getmail.bean;
+package com.example.getmail.entity;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
