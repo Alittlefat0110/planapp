@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+    <Appenders>//配置输出目的地
+        <!--添加一个控制台追加器，输出到控制台-->
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout>//输出格式
+                <pattern>[%-5level] %d{HH:mm:ss.SSS} %logger - %msg%n</pattern>
+            </PatternLayout>
+        </Console>
+        <!--添加一个文本追加器,输出到文件，名为rediscurd.log append="true"临时清空日志，适合测试时用-->
+        <File name="File" fileName="C:\Users\Sharpg\getmail\getmail.log" append="true">
+            <PatternLayout>
+                <pattern>[%-5p] %d %c - %m%n</pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>//配置不需要输出到控制台的类的日志形式
+        <Root level="info">
+            <AppenderRef ref="Console" />
+        </Root>
+        　　　　<!--把org.springframework包下的所有日志输出到log文件，additivity="false"表示不输出到控制台-->
+        <Logger name="org.springframework" level="info" additivity="false">
+            <AppenderRef ref="File" />//指定该日志输出到哪个Appender
+        </Logger>
+    </Loggers>
+</Configuration>

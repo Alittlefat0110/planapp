@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.getmail.mapper.GetMailMapper">
+    <!--邮箱配置start-->
+    <insert  id="mailInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="email_id" useGeneratedKeys="true" >
+        insert into email_config (username, email, password,encrypt,createtime,updatetime,flag) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.username}, #{cus.email}, #{cus.password}, #{cus.encrypt}, #{cus.createtime}, #{cus.updatetime}, #{cus.flag})
+        </foreach>
+    </insert>
+
+    <select id="mailSelect" resultType="com.example.getmail.bean.EmailConfig" >
+        SELECT email_id,email FROM email_config where username=#{username}
+    </select>
+        <update id="mailUpdate" parameterType="com.example.getmail.mapper.GetMailMapper">
+            <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+                update email_config
+                <set>
+                    <if test="item.username != null">username=#{item.username},</if>
+                    <if test="item.email != null">email=#{item.email},</if>
+                    <if test="item.password != null">password=#{item.password},</if>
+                    <if test="item.encrypt != null">encrypt=#{item.encrypt},</if>
+                    <if test="item.createtime != null">createtime=#{item.createtime},</if>
+                    <if test="item.flag != null">flag=#{item.flag},</if>
+                </set>
+                <where>
+                    email_id = #{item.email_id}
+                </where>
+            </foreach>
+        </update>
+    <!--
+        <delete id="mailDelete" parameterType="com.example.getmail.mapper.GetMailMapper">
+            delete from email_config where email_id
+            in
+            <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </delete>
+    -->
+    <!--邮箱配置end-->
+
+    <!--同步邮箱数据-->
+    <insert  id="transferfromemail" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="email_data_id" useGeneratedKeys="true" >
+        insert into email_data (email_ref_id,sender, title, content,receivetime,tag,owner,createtime,updatetime) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.email_ref_id},
+            #{cus.sender},
+            #{cus.title},
+            #{cus.content},
+            #{cus.receivetime},
+            #{cus.owner},
+            #{cus.owner},
+            #{cus.createtime},
+            #{cus.updatetime})
+        </foreach>
+    </insert>
+
+    <select id="maildataSelect" resultType="com.example.getmail.bean.EmailData" >
+        SELECT title,content FROM email_data
+    </select>
+     <!--生成日程表-->
+    <insert  id="plandataInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="plan_id" useGeneratedKeys="true" >
+        insert into plan_data (owner, title, content,tag,plantime,seq,createtime,updatetime,flag,source) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.owner},
+            #{cus.title},
+            #{cus.content},
+            #{cus.tag},
+            #{cus.plantime},
+            #{cus.seq},
+            #{cus.createtime},
+            #{cus.updatetime},
+            #{cus.flag},
+            #{cus.source})
+        </foreach>
+    </insert>
+
+</mapper>
