@@ -74,7 +74,7 @@ public class ReadExchangeMail {
     @ResponseBody
     @RequestMapping(value = "/dailyplan/transferfromemail", produces = "application/json;charset=utf-8")
     public String makeplan(String username) throws Exception {
-        getMailService.makeplan(username);
+        getMailService.transferfromemail(username);
         return "操作成功";
     }
 }

@@ -97,7 +97,16 @@ class GetmailApplicationTests {
 		//System.out.println(sdf.format(time1));
 		//Timestamp time = new Timestamp(System.currentTimeMillis());
 		//System.out.println(time);
-		System.out.println(emailData.getTitle());
+
+		List<EmailData> li = new ArrayList<>();
+		for(int i=0;i<li.size();i++) {
+			EmailData a = li.get(i);
+			String X=a.getTitle();
+			System.out.println(X);
+		}
+		  //getMailMapper.plandataInsert(list);
+
+		//System.out.println(getMailMapper.maildatacontent("mine"));
 	}
 
 	@Test

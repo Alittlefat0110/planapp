@@ -58,7 +58,10 @@
     </insert>
 
     <select id="maildataSelect" resultType="com.example.getmail.bean.EmailData" >
-        SELECT title,content FROM email_data
+        SELECT title FROM email_data
+    </select>
+    <select id="maildatacontent" resultType="com.example.getmail.bean.EmailData" >
+        SELECT content FROM email_data where owner=#{owner}
     </select>
      <!--生成日程表-->
     <insert  id="plandataInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="plan_id" useGeneratedKeys="true" >

@@ -18,4 +18,5 @@ public interface GetMailMapper {
 
     int transferfromemail(List<EmailData> list);//同步插入邮箱数据
     int plandataInsert(List<PlanData> list); //生成日程表
+    List<EmailData> maildatacontent(String owner);
 }
