@@ -11,6 +11,7 @@ import com.example.getmail.entity.PlanData;
 import com.example.getmail.entity.PlanTable;
 import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.GetMailService;
+import com.example.getmail.util.HtmlUtil;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
@@ -29,7 +30,7 @@ import javax.annotation.Resource;
 @Service(value = "GetMailService")
 public class GetMailServiceImpl implements GetMailService {
     EmailData emailData;
-    util a;
+    HtmlUtil a;
     @Resource
     //@Autowired
     private GetMailMapper getMailMapper ;

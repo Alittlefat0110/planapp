@@ -3,7 +3,7 @@ package com.example.getmail;
 import com.example.getmail.entity.EmailData;
 import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.GetMailService;
-import com.example.getmail.service.impl.util;
+import com.example.getmail.util.HtmlUtil;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
@@ -35,7 +35,7 @@ import java.util.List;
 @SpringBootTest
 class GetmailApplicationTests {
 	EmailData emailData =new EmailData();
-	util a;
+	HtmlUtil a;
     @Resource
 	private GetMailMapper getMailMapper ;
 	private GetMailService getMailService;

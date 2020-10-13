@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration><!-- 配置 -->
+    <settings>
+        <setting name="jdbcTypeForNull" value="NULL"/>
+    </settings>
+    <typeAliases>
+        <typeAlias alias="Integer" type="java.lang.Integer"></typeAlias>
+        <typeAlias alias="Long" type="java.lang.Long"></typeAlias>
+        <typeAlias alias="HashMap" type="java.util.HashMap"></typeAlias>
+        <typeAlias type="java.util.ArrayList" alias="ArrayList"></typeAlias>
+        <typeAlias type="java.util.LinkedList" alias="LinkedList"></typeAlias>
+    </typeAliases>
+</configuration>
