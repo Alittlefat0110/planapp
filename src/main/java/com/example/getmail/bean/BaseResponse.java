@@ -1,7 +1,9 @@
 package com.example.getmail.bean;
 
 import com.example.getmail.constant.ErrorCode;
+import lombok.Data;
 
+@Data
 public class BaseResponse {
 
     private int code=0;

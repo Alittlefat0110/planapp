@@ -1,9 +1,11 @@
 package com.example.getmail.entity;
 
+import lombok.Data;
+
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
-
+@Data
 public class EmailConfig {
     private Integer email_id;
     private String username;

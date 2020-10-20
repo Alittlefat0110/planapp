@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.getmail.mapper.DailyPlanAddBySelfMapper">
+     <!--手动设置日程表-->
+    <insert  id="dailyPlanAddBySelf" parameterType="com.example.getmail.entity.PlanData" keyProperty="plan_id" useGeneratedKeys="true" >
+        insert into plan_data (username, title, content,position,starttime,endtime,plantime,createtime,updatetime,flag,source) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.username},
+            #{cus.title},
+            #{cus.content},
+            #{cus.position},
+            #{cus.starttime},
+            #{cus.endtime},
+            #{cus.plantime},
+            #{cus.createtime},
+            #{cus.updatetime},
+            #{cus.flag},
+            #{cus.source})
+        </foreach>
+    </insert>
+
+    <!--删除指定日程-->
+    <!--注意问题：collection应对应mapper中的参数类型-->
+    <delete id="dailyPlanDeleteById" >
+        delete from plan_data where  username=#{username} and
+         plan_id in
+        <foreach item="item" index="index" collection="plan_id" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--更新日程-->
+    <update id="dailyPlanUpdateById" >
+        update plan_data set
+        username = #{username},
+        title = #{title},
+        content = #{content},
+        position = #{position},
+        starttime = #{starttime},
+        endtime = #{endtime},
+        plantime = #{plantime},
+        updatetime = #{updatetime},
+        flag = #{flag},
+        source = #{source}
+        where  plan_id = #{plan_id}
+    </update>
+
+
+</mapper>

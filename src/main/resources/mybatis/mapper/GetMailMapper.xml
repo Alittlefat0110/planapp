@@ -3,6 +3,32 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="com.example.getmail.mapper.GetMailMapper">
+    <resultMap id="planDataMap" type="com.example.getmail.entity.PlanData">
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="position" property="position"/>
+        <result column="starttime" property="starttime"/>
+        <result column="endtime" property="endtime"/>
+        <result column="plantime" property="plantime"/>
+    </resultMap>
+    <resultMap id="ConferenceData" type="com.example.getmail.entity.ConferenceData">
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="sender" property="sender"/>
+        <result column="receivetime" property="receivetime"/>
+        <result column="position" property="position"/>
+        <result column="starttime" property="starttime"/>
+        <result column="endtime" property="endtime"/>
+    </resultMap>
+    <resultMap id="EmailFilter" type="com.example.getmail.entity.EmailFilter">
+        <result column="title" property="title"/>
+        <result column="sender" property="sender"/>
+    </resultMap>
+
+    <resultMap id="EmailConfig" type="com.example.getmail.entity.EmailConfig">
+        <result column="email_id" property="email_id"/>
+        <result column="email" property="email"/>
+    </resultMap>
     <!--邮箱配置start-->
     <insert  id="mailInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="email_id" useGeneratedKeys="true" >
         insert into email_config (username, email, password,encrypt,createtime,updatetime,flag) values
@@ -10,40 +36,22 @@
             (#{cus.username}, #{cus.email}, #{cus.password}, #{cus.encrypt}, #{cus.createtime}, #{cus.updatetime}, #{cus.flag})
         </foreach>
     </insert>
-
-    <select id="mailSelect" resultType="com.example.getmail.entity.EmailConfig" >
+<!--查询配置邮箱信息-->
+    <select id="mailSelect" resultMap="EmailConfig" >
         SELECT email_id,email FROM email_config where username=#{username}
     </select>
-        <update id="mailUpdate" parameterType="com.example.getmail.mapper.GetMailMapper">
-            <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-                update email_config
-                <set>
-                    <if test="item.username != null">username=#{item.username},</if>
-                    <if test="item.email != null">email=#{item.email},</if>
-                    <if test="item.password != null">password=#{item.password},</if>
-                    <if test="item.encrypt != null">encrypt=#{item.encrypt},</if>
-                    <if test="item.createtime != null">createtime=#{item.createtime},</if>
-                    <if test="item.flag != null">flag=#{item.flag},</if>
-                </set>
-                <where>
-                    email_id = #{item.email_id}
-                </where>
-            </foreach>
-        </update>
-    <!--
-        <delete id="mailDelete" parameterType="com.example.getmail.mapper.GetMailMapper">
-            delete from email_config where email_id
-            in
-            <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </delete>
-    -->
+    <!--删除邮箱post-->
+    <delete id="mailDelete" parameterType="com.example.getmail.mapper.GetMailMapper">
+            delete from email_config where email_id in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
     <!--邮箱配置end-->
 
     <!--同步邮箱数据-->
-    <insert  id="transferfromemail" parameterType="com.example.getmail.mapper.GetMailMapper" >
-        replace into email_data (email_ref_id,sender, title, content,receivetime,tag,owner,createtime,updatetime) values
+    <insert  id="transferFromEmail" keyProperty="email_ref_id" useGeneratedKeys="true" >
+       insert ignore into email_data (email_ref_id,sender, title, content,receivetime,owner,createtime,updatetime) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.email_ref_id},
             #{cus.sender},
@@ -51,28 +59,40 @@
             #{cus.content},
             #{cus.receivetime},
             #{cus.owner},
-            #{cus.owner},
             #{cus.createtime},
             #{cus.updatetime})
         </foreach>
     </insert>
 
-    <select id="maildataSelect" resultType="com.example.getmail.entity.EmailData" >
-        SELECT title FROM email_data
-    </select>
-    <select id="maildatacontent" resultType="com.example.getmail.entity.EmailData" >
-        SELECT content FROM email_data where owner=#{owner}
-    </select>
-     <!--生成日程表-->
-    <insert  id="plandataInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="plan_id" useGeneratedKeys="true" >
-        insert into plan_data (owner, title, content,tag,plantime,seq,createtime,updatetime,flag,source) values
+    <!--同步会议（日历）数据-->
+    <insert  id="transferFromCalendar"  >
+        insert ignore into conference_data ( calendar_id,sender,receivetime,title,content,position,starttime,endtime,createtime) values
         <foreach collection="list" separator="," item="cus">
-            (#{cus.owner},
+            (#{cus.calendar_id},
+            #{cus.sender},
+            #{cus.receivetime},
             #{cus.title},
             #{cus.content},
-            #{cus.tag},
+            #{cus.position},
+            #{cus.starttime},
+            #{cus.endtime},
+            #{cus.createtime})
+        </foreach>
+    </insert>
+<!--从会议数据表查询数据（用于插入日程表） -->
+    <select id="selectConferenceData" resultMap="ConferenceData" >
+        select title,content,position,starttime,endtime from conference_data;
+    </select>
+    <insert  id="dailyPlanGetFromConference" parameterType="com.example.getmail.entity.PlanData" keyProperty="plan_id" useGeneratedKeys="true" >
+        insert ignore into plan_data (username, title, content,position,starttime,endtime,plantime,createtime,updatetime,flag,source) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.username},
+            #{cus.title},
+            #{cus.content},
+            #{cus.position},
+            #{cus.starttime},
+            #{cus.endtime},
             #{cus.plantime},
-            #{cus.seq},
             #{cus.createtime},
             #{cus.updatetime},
             #{cus.flag},
@@ -80,16 +100,37 @@
         </foreach>
     </insert>
 
-    <!--拉取email——data中数据生成日程-->
-    <insert  id="plantableInsert" parameterType="com.example.getmail.mapper.GetMailMapper"  >
-        insert  into plantable (username,title, content,createtime) select owner,title, content,createtime from email_data
-    </insert>
+   <!--查询邮件最新邮件收件时间-->
+    <select id="latestReceiveTime" resultType="Date" >
+        select max(receivetime) as receivetime from email_data;
+    </select>
+    <!--查询会议最新会议收件时间-->
+    <select id="latestCalendarReceiveTime" resultType="Date" >
+        select max(receivetime) as receivetime from conference_data;
+    </select>
+    <!--查询会议最早邮件收件时间-->
+    <select id="oldestReceiveTime" resultType="Date" >
+        select min(receivetime) as receivetime from email_data;
+    </select>
+    <!--获取邮件内容-->
+    <select id="maildatacontent" resultType="com.example.getmail.entity.EmailData" >
+        SELECT content FROM email_data where owner=#{owner}
+    </select>
+    <!--查询过滤关键词
+    <select id="selectTitleFromFilter" resultMap="EmailFilter" >
+        SELECT filter_key FROM email_filter where filter_name=title
+    </select>
+    -->
+    <!--查询过滤条件-->
+    <select id="selectFilterKeyFromFilter" resultMap="EmailFilter" >
+        SELECT filter_key FROM email_filter where filter_name=#{filter_name}
+    </select>
     <!--查询当前周-->
-    <select id="selectThisWeek" resultType="com.example.getmail.entity.PlanTable" >
-        SELECT * FROM plantable where yearweek(date_format(createtime,'%Y-%m-%d')) = YEARWEEK(now());
+    <select id="selectByTimeRange" resultMap="planDataMap" >
+        SELECT  title,content,position,starttime,endtime,plantime FROM
+        plan_data  main
+        WHERE main.starttime between #{startTime} and #{endTime}
+        and username = #{username}
+        ORDER  BY  main.starttime
     </select>
-    <select id="getCron" resultType="com.example.getmail.bean.CronConfig" >
-        SELECT cron FROM cron_config WHERE cron_id=1
-    </select>
-
 </mapper>
