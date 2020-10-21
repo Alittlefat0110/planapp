@@ -168,7 +168,7 @@ public class GetMailServiceImpl implements GetMailService {
         for(Appointment ap:appointmentItems) {
             ap.load();
             String subject = ap.getSubject();
-            boolean status = StrUtil.containsAny(subject, listTitle.get(0).getFilter_key());
+            boolean status = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
             //如邮箱主题包含过滤关键词的某一个，则过滤该会议
             if (status) {
                 continue;
