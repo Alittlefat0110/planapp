@@ -17,7 +17,7 @@ public class EwsExchangeController {
     private GetMailService getMailService;
 
     //1.拉取邮箱数据
-    //@Scheduled(cron = "0 0/8 20 * * * ")
+    @Scheduled(cron = "0 0 23 * * ? ")//每天晚上十一点执行点
     @PostMapping(value = "/emailData/transferFromEmail", produces = "application/json;charset=utf-8")
     public AddEmailConfigResponse insertMail(){
         AddEmailConfigResponse response=new AddEmailConfigResponse();
@@ -31,7 +31,7 @@ public class EwsExchangeController {
         return response;
     }
     //拉取会议数据
-    //@Scheduled(cron = "0 0/8 20 * * * ")
+    @Scheduled(cron = "0 0 0 * * ? ")//每天零点执行
     @PostMapping(value = "/conferenceData/transferFromCalendar", produces = "application/json;charset=utf-8")
     public AddEmailConfigResponse insertCalendar(){
         AddEmailConfigResponse response=new AddEmailConfigResponse();
