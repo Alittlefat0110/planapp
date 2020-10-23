@@ -42,8 +42,8 @@ import javax.annotation.Resource;
 @Component  //配合Scheduled定时器使用
 @Service(value = "GetMailService")
 public class GetMailServiceImpl implements GetMailService {
-    EmailData emailData;
-    HtmlUtil a;
+    //EmailData emailData;
+    HtmlUtil a;         //创建提取html的body内容的工具对象
     @Resource
     //@Autowired
     private GetMailMapper getMailMapper ;
@@ -86,45 +86,45 @@ public class GetMailServiceImpl implements GetMailService {
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.set(Calendar.YEAR, year);
-        Date currYearFirst = calendar.getTime();
+        Date currYearFirst = calendar.getTime();//当年第一天
         for (int i = 0; i < items.size(); i++) {
             EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
             message.load();
             //将同步邮箱数据插入mysql数据库
-            if (latestTime == null) {
+            if (latestTime == null) {                                  //若数据库为空则令最新收件时间为当年1月1日
                 latestTime = currYearFirst;
-                Date compareTime = items.get(i).getDateTimeReceived();
-                if (latestTime.compareTo(compareTime) >= 0)
+                Date compareTime = items.get(i).getDateTimeReceived();//当前邮件的收件时间
+                if (latestTime.compareTo(compareTime) >= 0)           //根据接收时间判断当前邮件是否存在于数据库中
                     continue;
                 //System.out.println(items.get(i).getSubject());
                 EmailData h = new EmailData();
-                h.setEmail_ref_id(items.get(i).getId().toString()); //message ID
-                h.setSender(message.getSender().toString()); //发件人
-                h.setTitle(items.get(i).getSubject()); //主题
+                h.setEmail_ref_id(items.get(i).getId().toString());        //message ID
+                h.setSender(message.getSender().toString());               //发件人
+                h.setTitle(items.get(i).getSubject());                     //邮件主题
                 String html_body = message.getBody().toString();
-                String body = a.getContentFromHtml(html_body);
-                h.setContent(body); //邮件内容
-                h.setReceivetime(items.get(i).getDateTimeReceived()); //收件时间
-                h.setOwner("mine");
-                Timestamp time = new Timestamp(System.currentTimeMillis());
+                String body = a.getContentFromHtml(html_body);             //获取html文档中body的文本内容（邮件内容）
+                h.setContent(body);                                        //邮件内容
+                h.setReceivetime(items.get(i).getDateTimeReceived());      //收件时间
+                h.setOwner("mine");                                        //拥有者
+                Timestamp time = new Timestamp(System.currentTimeMillis());//获取当前时间
                 h.setCreatetime(time);
                 h.setUpdatetime(time);
                 list.add(h);
             } else if (latestTime != null) {
                 Date compareTime = items.get(i).getDateTimeReceived();
-                if (latestTime.compareTo(compareTime) >= 0)
+                if (latestTime.compareTo(compareTime) >= 0)         //根据接收时间判断当前邮件是否存在于数据库中
                     continue;
-                System.out.println(items.get(i).getSubject());
+                //System.out.println(items.get(i).getSubject());
                 EmailData h = new EmailData();
                 h.setEmail_ref_id(items.get(i).getId().toString()); //message ID
-                h.setSender(message.getSender().toString()); //发件人
-                h.setTitle(items.get(i).getSubject()); //主题
+                h.setSender(message.getSender().toString());        //发件人
+                h.setTitle(items.get(i).getSubject());              //邮件主题
                 String html_body = message.getBody().toString();
-                String body = a.getContentFromHtml(html_body);
-                h.setContent(body); //邮件内容
+                String body = a.getContentFromHtml(html_body);       //获取html文档中body的文本内容（邮件内容）
+                h.setContent(body);                                  //邮件内容
                 h.setReceivetime(items.get(i).getDateTimeReceived()); //收件时间
                 h.setOwner("mine");
-                Timestamp time = new Timestamp(System.currentTimeMillis());
+                Timestamp time = new Timestamp(System.currentTimeMillis());//获取当前时间
                 h.setCreatetime(time);
                 h.setUpdatetime(time);
                 list.add(h);
@@ -158,8 +158,8 @@ public class GetMailServiceImpl implements GetMailService {
         CalendarFolder calendar = CalendarFolder.bind(service, folderId);
         FindItemsResults<Appointment> findResults = calendar.findAppointments(cView);
         List<ConferenceData> list =new ArrayList<>();
-        List<String> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
-        List<String> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
+        List<String> listTitle=getMailMapper.selectFilterKeyFromFilter("title");  //获取过滤关键字列表
+        List<String> listSender=getMailMapper.selectFilterKeyFromFilter("sender");//获取过滤邮箱列表
         String[] s=new String[listSender.size()];
         for(int i=0;i<listSender.size();i++){
             s[i]=listSender.get(i);

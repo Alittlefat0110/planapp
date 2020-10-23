@@ -45,6 +45,7 @@ import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -223,11 +224,14 @@ class GetmailApplicationTests {
 		System.out.println(inbox.getDisplayName());
 		//Calendar start = Calendar.getInstance();
 		//start.set(2020,10,19);
-		Calendar end = Calendar.getInstance();
-		end.set(2020,10,24);
-		Date start = new Date();
+		//Calendar end = Calendar.getInstance();
+		//end.set(2020,10,24);
+		//Date start = new Date();
 		//Date end = new Date(start.getTime() + 1000*3600*24);
-		CalendarView cView = new CalendarView(start,end.getTime());
+		Date now = new Date();//获取当前时间
+		 Date start = DateUtils.addDays(now,-30);//设置开始时间为当前时间的前30天
+		Date end = DateUtils.addDays(now, +30);      //设置截止时间为当前时间后30天
+		CalendarView cView = new CalendarView(start,end);
 		//指定要查看的邮箱
 		FolderId folderId = new FolderId(WellKnownFolderName.Calendar, new Mailbox("xgwfat@outlook.com"));
 		CalendarFolder alendar = CalendarFolder.bind(service, folderId);
@@ -240,17 +244,27 @@ class GetmailApplicationTests {
 		}
 		ArrayList<Appointment> appointmentItems = findResults==null?null:findResults.getItems();
 		System.out.println("状态2");
-		List<EmailFilter> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
+		List<String> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
+		List<String> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
+		String[] s=new String[listSender.size()];
+		for(int i=0;i<listSender.size();i++){
+			s[i]=listSender.get(i);
+		}
 
 		for(Appointment ap:appointmentItems){
 			ap.load();
 			String subject = ap.getSubject();
-				boolean status = StrUtil.containsAny(subject, listTitle.get(1).getFilter_key());
+			String sender =ap.getOrganizer().toString();
+			boolean status = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
+			boolean statusSender=StrUtil.equalsAny(sender,s);
 				//如邮箱主题包含过滤关键词的某一个，则过滤该会议
-				if (status) {
+				if (status||statusSender) {
+					System.out.println("会议主题：" + ap.getSubject()+"-->被过滤了");
+					System.out.println("会议组织者：" + ap.getOrganizer()+"--->被拒绝了");
 					continue;
 				} else {
 					//得到HTML格式的内容，通过工具类提取body标签的内容
+					System.out.println("X1");
 					String html_body = ap.getBody().toString();
 					String body = a.getContentFromHtml(html_body);
 					System.out.println("会议主题：" + ap.getSubject());
@@ -365,20 +379,31 @@ class GetmailApplicationTests {
 		}else{
 			System.out.println("不包含");
 		}
-		List<EmailFilter> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
-		List<EmailFilter> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
-		System.out.println(listSender.toString().toCharArray());
-        String subject="测试";
-        String sender ="xgwfat@outlook.com";
-		boolean sta = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
-		boolean statusSender=StrUtil.containsAny(sender,listSender.toString().toCharArray());
-		boolean c=sender.equals(listSender.toString());
-		System.out.println(c);
+		List<String> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
+		List<String> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
+		String[] s=new String[listSender.size()];
+		for(int i=0;i<listSender.size();i++){
+			s[i]=listSender.get(i);
+			System.out.println(s[i]);
+		}
+		System.out.println(s);
+	    //System.out.println(listSender.toString().toCharArray());
+		System.out.println(listTitle.toString());
+        String subject="过滤";
+        String sender ="xiao xie <outlook_E8CA99C2584A3A73@outlook.com>";
+        String str1="xgwfat@outlook.com";
+		boolean sta = StrUtil.containsAny(subject, listTitle.toString().toCharArray());;
+		boolean statusSender=StrUtil.equalsAny(sender,s);
 		//如邮箱主题包含过滤关键词的某一个，则过滤该会议
 		if (statusSender) {
-			System.out.println("包含1");
+			System.out.println("存在相等的邮箱");
 		} else{
-			System.out.println("不包含1");
+			System.out.println("不存在相等的邮箱");
+		}
+		if (sta) {
+			System.out.println("包含关键字");
+		} else{
+			System.out.println("不包含关键字");
 		}
 	}
 
