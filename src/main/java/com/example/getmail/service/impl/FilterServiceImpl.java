@@ -8,15 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service(value = "FilterService")
+@Service(value = "FilterService")//表示给当前类命名一个别名，方便注入到其他需要用到的类中；不加的话，默认别名就是当前类名，但是首字母小写
 public class FilterServiceImpl  implements FilterService {
     @Autowired
     private FilterMapper filterMapper;
 
     @Override
-    //设置过滤条件
-    public  int addFilter( List<EmailFilter> list){
-        return filterMapper.addFilter(list);
+    //新增过滤条件
+    public  int addFilter( List<EmailFilter> list){ return filterMapper.addFilter(list);
     }
     @Override
     //查询过滤条件
