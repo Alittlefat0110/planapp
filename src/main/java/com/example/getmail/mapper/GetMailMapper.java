@@ -25,4 +25,5 @@ public interface GetMailMapper {
     void  dailyPlanGetFromConference(@Param("list") List<PlanData> list);//以会议数据生成日程表
     //List<EmailFilter> selectTitleFromFilter();//查询过滤关键词
     List<EmailFilter> selectFilterKeyFromFilter(@Param("filter_name") String filter_name);//查询过滤邮箱
+    List<String> selectTitleFromPlanData(@Param("username") String username);
 }
