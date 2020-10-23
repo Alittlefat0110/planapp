@@ -1,7 +1,10 @@
 package com.example.getmail;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
+import com.example.getmail.contentSimilarity.similarity.text.CosineSimilarity;
+import com.example.getmail.contentSimilarity.similarity.text.TextSimilarity;
 import com.example.getmail.entity.ConferenceData;
 import com.example.getmail.entity.EmailData;
 import com.example.getmail.entity.EmailFilter;
@@ -71,63 +74,6 @@ class GetmailApplicationTests {
 	private DailyPlanAddBySelfMapper dailyPlanAddBySelfMapper;
 	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
 
-	@Test
-	public void getUserUnReadMail() throws Exception {
-
-		/** try {
-		 SSLContext ctx = SSLContext.getInstance("TLSv1.2");
-		 ctx.init(null, null, null);
-		 SSLContext.setDefault(ctx);  //将你所要使用的TLS版本设为默认
-		 } catch (NoSuchAlgorithmException e1) {
-		 e1.printStackTrace();
-		 } catch (KeyManagementException e) {
-		 e.printStackTrace();
-		 }
-		 System.setProperty("https.protocols", "TLSv1.2");*/
-		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
-		//使用exchange服务工具类创建服务
-		//ExchangeMailUtil exchangeMailUtil = new ExchangeMailUtil(mailServer, user, password, readUrlPrefix);
-		//ExchangeService service = exchangeMailUtil.getExchangeService();
-		//创建exchange服务 ExchangeVersion.Exchange2010_SP1    (服务版本号)
-		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
-		ExchangeCredentials credentials = new WebCredentials("xgwfat@outlook.com", "giyoyo9420", "outlook.com");
-		service.setCredentials(credentials);
-		//service.autodiscoverUrl("xiaoxie0929@163.com");
-		service.setUrl(new URI("https://s.outlook.com/EWS/Exchange.asmx"));
-
-		// Bind to the Inbox.
-		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
-		System.out.println(inbox.getDisplayName());
-		ItemView itemView = new ItemView(10);
-		// 查询
-		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
-		ArrayList<Item> items = findResults.getItems();
-		//for (int i = 0; i < items.size(); i++) {
-		//	EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
-		//	message.load();
-		//System.out.println(message.getSender());
-		//System.out.println("邮件主题：" + items.get(i).getSubject());
-		//System.out.println("接收方：" + message.getReceivedBy());
-		//System.out.println("发送：" + message.getSender());
-		//System.out.println("发送人：" + message.getFrom());
-		//System.out.println("接收时间：" + items.get(i).getDateTimeReceived());
-		//System.out.println("是否已读：" + message.getIsRead());
-		//System.out.println("邮件ID：" + items.get(i).getId()); //Message ID
-		//	System.out.println("邮件内容：" + message.getBody()); //Message ID
-
-
-		//	}
-		ItemView view = new ItemView(10);
-		FindItemsResults<Item> findResult = service.findItems(inbox.getId(), view);
-		for (Item item : findResult.getItems()) {
-			EmailMessage message = EmailMessage.bind(service, item.getId());
-			List<Attachment> attachs = message.getAttachments().getItems();//
-			System.out.println("id-->" + message.getId());
-			System.out.println("sender-->" + message.getSender());
-			System.out.println("sub-->" + item.getSubject());
-			System.out.println("body-->" + message.getUniqueBody());
-		}
-	}
 
 	@Test
 	public void gettime() {
@@ -420,7 +366,92 @@ class GetmailApplicationTests {
 			System.out.println("不包含");
 		}
 		List<EmailFilter> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
-		System.out.println(listTitle.toString());
+		List<EmailFilter> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
+		System.out.println(listSender.toString().toCharArray());
+        String subject="测试";
+        String sender ="xgwfat@outlook.com";
+		boolean sta = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
+		boolean statusSender=StrUtil.containsAny(sender,listSender.toString().toCharArray());
+		boolean c=sender.equals(listSender.toString());
+		System.out.println(c);
+		//如邮箱主题包含过滤关键词的某一个，则过滤该会议
+		if (statusSender) {
+			System.out.println("包含1");
+		} else{
+			System.out.println("不包含1");
+		}
 	}
 
+	@Test
+	public void getSimilarityScore() throws Exception {
+List<String> title = getMailMapper.selectTitleFromPlanData("yourself");
+		TextSimilarity similarity = new CosineSimilarity();
+for(int i=0;i<title.size();i++){
+	//TextSimilarity similarity = new CosineSimilarity();
+	String text5 = title.get(i);
+	String text4 = "相似度测试";
+	double score1pkx = similarity.getSimilarity(text4, text5);
+	if(score1pkx>0.4) {
+		System.out.println(text4 + " 和 " + text5 + " 的相似度分值：" + score1pkx);
+	}
+}
+
+
+/**
+		String text1 = title.get(0);
+		String text2 = title.get(1);
+		String text3 = title.get(7);
+		TextSimilarity similarity = new CosineSimilarity();
+		double score1pk2 = similarity.getSimilarity(text1, text2);
+		double score1pk3 = similarity.getSimilarity(text1, text3);
+		double score2pk2 = similarity.getSimilarity(text2, text2);
+		double score2pk3 = similarity.getSimilarity(text2, text3);
+		double score3pk3 = similarity.getSimilarity(text3, text3);
+		System.out.println(text1 + " 和 " + text2 + " 的相似度分值：" + score1pk2);
+		System.out.println(text1 + " 和 " + text3 + " 的相似度分值：" + score1pk3);
+		System.out.println(text2 + " 和 " + text2 + " 的相似度分值：" + score2pk2);
+		System.out.println(text2 + " 和 " + text3 + " 的相似度分值：" + score2pk3);
+		System.out.println(text3 + " 和 " + text3 + " 的相似度分值：" + score3pk3);
+ */
+
+	}
+
+	@Test
+	//主题相似度排查测试
+	public void dailyPlanFromConference(){
+		List<String> title = getMailMapper.selectTitleFromPlanData("yourself");
+		TextSimilarity similarity = new CosineSimilarity();
+		List<ConferenceData> data =getMailMapper.selectConferenceData();
+		List<PlanData> list=new ArrayList<>();
+		PlanData planData = new PlanData();
+		for(int i = 0; i < data.size(); i++) {
+			String text4 = data.get(i).getTitle();//会议数据表（conference_data)中的主题
+		     for(int j=0;j<title.size();j++) {
+		    	String text5 = title.get(j);//日程表（plan_data中的主题）
+			    double score1pkx = similarity.getSimilarity(text4, text5);//判断主题相似度
+			    System.out.println(text4 + " 和 " + text5 + " 的相似度分值：" + score1pkx);
+			    if (score1pkx<=0.8) {
+					System.out.println("符合插入条件或已插入");
+					System.out.println(data.get(i).getTitle());
+					planData.setTitle(data.get(i).getTitle());//插入主题
+					planData.setContent(data.get(i).getContent()); //插入会议内容
+					planData.setPosition(data.get(i).getPosition()); //插入会议位置
+					planData.setStarttime(data.get(i).getStarttime());//插入会议开始时间
+					planData.setEndtime(data.get(i).getEndtime());    //插入会议结束时间
+					Timestamp time = new Timestamp(System.currentTimeMillis()); //获取当前时间
+					planData.setUsername("yourself");                  //插入用户名
+					planData.setPlantime(data.get(i).getStarttime());   //插入待办时间
+					planData.setCreatetime(time);                  //插入创建时间
+					planData.setUpdatetime(time);                  //插入初始更新时间=创建时间
+					planData.setFlag("1");                         //插入日程状态  1-正常，0-禁用 -1,已删除
+					planData.setSource("1");                       //插入数据来源  0：手动添加 1:邮件同步
+					list.add(planData);
+				}
+		    }
+		}
+		if(CollectionUtil.isNotEmpty(list)) {
+			getMailMapper.dailyPlanGetFromConference(list);
+			list.clear();
+		}
+	}
 }
