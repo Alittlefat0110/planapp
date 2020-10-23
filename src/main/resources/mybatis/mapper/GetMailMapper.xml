@@ -21,8 +21,8 @@
         <result column="endtime" property="endtime"/>
     </resultMap>
     <resultMap id="EmailFilter" type="com.example.getmail.entity.EmailFilter">
-        <result column="title" property="title"/>
-        <result column="sender" property="sender"/>
+        <result column="filter_name" property="filter_name"/>
+        <result column="filter_key" property="filter_key"/>
     </resultMap>
 
     <resultMap id="EmailConfig" type="com.example.getmail.entity.EmailConfig">
@@ -126,6 +126,9 @@
         SELECT filter_key FROM email_filter where filter_name=#{filter_name}
     </select>
     <!--查询当前周-->
+    <select id="selectTitleFromPlanData" resultType="string" >
+        SELECT  title FROM plan_data
+    </select>
     <select id="selectByTimeRange" resultMap="planDataMap" >
         SELECT  title,content,position,starttime,endtime,plantime FROM
         plan_data  main

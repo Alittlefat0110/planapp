@@ -12,7 +12,6 @@
         <result column="createTime" property="createtime"/>
         <result column="updateTime" property="updatetime"/>
         <result column="flag" property="flag"/>
-        <result column="type" property="type"/>
     </resultMap>
 
     <!--设置过滤-->
