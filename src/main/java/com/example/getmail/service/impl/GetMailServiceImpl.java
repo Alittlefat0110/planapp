@@ -10,6 +10,8 @@ import java.util.List;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.example.getmail.contentSimilarity.similarity.text.CosineSimilarity;
+import com.example.getmail.contentSimilarity.similarity.text.TextSimilarity;
 import com.example.getmail.entity.*;
 import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.GetMailService;
@@ -32,6 +34,7 @@ import microsoft.exchange.webservices.data.property.complex.Mailbox;
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -148,17 +151,19 @@ public class GetMailServiceImpl implements GetMailService {
         System.out.println(inbox.getDisplayName());
         //Calendar start = Calendar.getInstance();
         //start.set(2020,10,19);
-        Calendar end = Calendar.getInstance();
-        end.set(2020,10,30);
+        //Calendar end = Calendar.getInstance();
+        //end.set(2020,10,30);
         Date start = new Date();
+        Date end = DateUtils.addDays(start, +30);
         //Date end = new Date(start.getTime() + 1000*3600*24);
-        CalendarView cView = new CalendarView(start,end.getTime());
+        CalendarView cView = new CalendarView(start,end);
         //指定要查看的邮箱
         FolderId folderId = new FolderId(WellKnownFolderName.Calendar, new Mailbox("xgwfat@outlook.com"));
         CalendarFolder alendar = CalendarFolder.bind(service, folderId);
         FindItemsResults<Appointment> findResults = alendar.findAppointments(cView);
         List<ConferenceData> list =new ArrayList<>();
         List<EmailFilter> listTitle=getMailMapper.selectFilterKeyFromFilter("title");
+        //List<EmailFilter> listSender=getMailMapper.selectFilterKeyFromFilter("sender");
         try {
             findResults = service.findAppointments(folderId, cView);
         } catch (Exception e) {
@@ -168,9 +173,11 @@ public class GetMailServiceImpl implements GetMailService {
         for(Appointment ap:appointmentItems) {
             ap.load();
             String subject = ap.getSubject();
-            boolean status = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
-            //如邮箱主题包含过滤关键词的某一个，则过滤该会议
-            if (status) {
+            //String sender =ap.getOrganizer().toString();
+            boolean statusTitle = StrUtil.containsAny(subject, listTitle.toString().toCharArray());
+            //boolean statusSender=StrUtil.containsAny(sender,listSender.toString().toCharArray());
+            //如邮箱主题包含过滤关键词/发件人的某一个，则过滤该会议
+            if (statusTitle) {
                 continue;
             } else {
                 ConferenceData c = new ConferenceData();
@@ -198,24 +205,37 @@ public class GetMailServiceImpl implements GetMailService {
     @Override
     //以会议数据生成日程表
     public void dailyPlanGetFromConference(){
+        List<String> title = getMailMapper.selectTitleFromPlanData("yourself");
+        TextSimilarity similarity = new CosineSimilarity();
         List<ConferenceData> data =getMailMapper.selectConferenceData();
         List<PlanData> list=new ArrayList<>();
         PlanData planData = new PlanData();
-        for (int i = 0; i < data.size(); i++) {
-            System.out.println(data.get(i).getTitle());
-            planData.setTitle(data.get(i).getTitle());//插入主题
-            planData.setContent(data.get(i).getContent()); //插入会议内容
-            planData.setPosition(data.get(i).getPosition()); //插入会议位置
-            planData.setStarttime(data.get(i).getStarttime());//插入会议开始时间
-            planData.setEndtime(data.get(i).getEndtime());    //插入会议结束时间
-            Timestamp time = new Timestamp(System.currentTimeMillis()); //获取当前时间
-            planData.setUsername("yourself");                  //插入用户名
-            planData.setPlantime(data.get(i).getStarttime());   //插入待办时间
-            planData.setCreatetime(time);                  //插入创建时间
-            planData.setUpdatetime(time);                  //插入初始更新时间=创建时间
-            planData.setFlag("1");                         //插入日程状态  1-正常，0-禁用 -1,已删除
-            planData.setSource("1");                       //插入数据来源  0：手动添加 1:邮件同步
-            list.add(planData);
+        for(int i = 0; i < data.size(); i++) {
+            String title1 = data.get(i).getTitle();//会议数据表（conference_data)中的主题
+            for(int j=0;j<title.size();j++) {
+                String title2 = title.get(j);//日程表（plan_data中的主题）
+                double score1pkx = similarity.getSimilarity(title1, title2);//判断主题相似度
+                //System.out.println(title1 + " 和 " + title2 + " 的相似度分值：" + score1pkx);
+                if (score1pkx<=0.8) {
+                   // System.out.println("符合插入条件或已插入");
+                    //System.out.println(data.get(i).getTitle());
+                    planData.setTitle(data.get(i).getTitle());//插入主题
+                    planData.setContent(data.get(i).getContent()); //插入会议内容
+                    planData.setPosition(data.get(i).getPosition()); //插入会议位置
+                    planData.setStarttime(data.get(i).getStarttime());//插入会议开始时间
+                    planData.setEndtime(data.get(i).getEndtime());    //插入会议结束时间
+                    Timestamp time = new Timestamp(System.currentTimeMillis()); //获取当前时间
+                    planData.setUsername("yourself");                  //插入用户名
+                    planData.setPlantime(data.get(i).getStarttime());   //插入待办时间
+                    planData.setCreatetime(time);                  //插入创建时间
+                    planData.setUpdatetime(time);                  //插入初始更新时间=创建时间
+                    planData.setFlag("1");                         //插入日程状态  1-正常，0-禁用 -1,已删除
+                    planData.setSource("1");                       //插入数据来源  0：手动添加 1:邮件同步
+                    list.add(planData);
+                }
+            }
+        }
+        if(CollectionUtil.isNotEmpty(list)) {
             getMailMapper.dailyPlanGetFromConference(list);
             list.clear();
         }
