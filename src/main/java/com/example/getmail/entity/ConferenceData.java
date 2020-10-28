@@ -17,4 +17,5 @@ public class ConferenceData {
     private Date starttime;
     private Date endtime;
     private Timestamp createtime;
+
 }

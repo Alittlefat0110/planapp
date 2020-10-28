@@ -113,7 +113,7 @@
         select min(receivetime) as receivetime from email_data;
     </select>
     <!--获取邮件内容-->
-    <select id="maildatacontent" resultType="com.example.getmail.entity.EmailData" >
+    <select id="maildatacontent" resultType="string" >
         SELECT content FROM email_data where owner=#{owner}
     </select>
     <!--查询过滤关键词
@@ -125,10 +125,11 @@
     <select id="selectFilterKeyFromFilter" resultType="string" >
         SELECT filter_key FROM email_filter where filter_name=#{filter_name}
     </select>
-    <!--查询当前周-->
+    <!--查询日程标题-->
     <select id="selectTitleFromPlanData" resultType="string" >
         SELECT  title FROM plan_data
     </select>
+    <!--查询时间段内的数据-->
     <select id="selectByTimeRange" resultMap="planDataMap" >
         SELECT  title,content,position,starttime,endtime,plantime FROM
         plan_data  main
@@ -136,4 +137,34 @@
         and username = #{username}
         ORDER  BY  main.starttime
     </select>
+    <!--热词对应主题查询日程-->
+    <select id="selectByTitle" resultMap="planDataMap" >
+        SELECT  title,content,position,starttime,endtime,plantime FROM
+        plan_data  main
+        WHERE title = #{title}
+        ORDER  BY  main.starttime
+    </select>
+    <select id="selectByWord" resultMap="planDataMap" >
+        SELECT  title,content,position,starttime,endtime,plantime FROM
+        plan_data  main
+        WHERE title like concat(concat('%',#{title}),'%')
+        ORDER  BY  main.starttime
+    </select>
+
+
+    <insert  id="addWordsFrequency" parameterType="com.example.getmail.entity.TitleFrequency" keyProperty="id" useGeneratedKeys="true" >
+        insert  into title_frequency (words, frequency) values
+        <foreach collection="list" separator="," item="cus">
+            (#{cus.words},
+            #{cus.frequency})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        frequency=values(frequency)
+    </insert>
+    <select id="selectHottestWords" resultType="string" >
+    SELECT  words FROM title_frequency where frequency=(select max(frequency) as frequency from title_frequency)
+    </select>
+
+
+
 </mapper>

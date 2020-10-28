@@ -1,20 +1,17 @@
 package com.example.getmail;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.getmail.contentSimilarity.similarity.text.CosineSimilarity;
 import com.example.getmail.contentSimilarity.similarity.text.TextSimilarity;
-import com.example.getmail.entity.ConferenceData;
-import com.example.getmail.entity.EmailData;
-import com.example.getmail.entity.EmailFilter;
-import com.example.getmail.entity.PlanData;
+import com.example.getmail.contentSimilarity.tokenizer.Tokenizer;
+import com.example.getmail.contentSimilarity.tokenizer.Word;
+import com.example.getmail.entity.*;
 import com.example.getmail.mapper.DailyPlanAddBySelfMapper;
 import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.DailyPlanConfigBySelfService;
 import com.example.getmail.service.GetMailService;
 import com.example.getmail.util.HtmlUtil;
-import microsoft.exchange.webservices.data.core.EwsServiceXmlReader;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
@@ -35,7 +32,6 @@ import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
 import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
 import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
-import microsoft.exchange.webservices.data.property.complex.Attachment;
 import microsoft.exchange.webservices.data.property.complex.Attendee;
 import microsoft.exchange.webservices.data.property.complex.FolderId;
 import microsoft.exchange.webservices.data.property.complex.Mailbox;
@@ -50,15 +46,12 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.io.Console;
-import java.math.BigInteger;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -84,16 +77,10 @@ class GetmailApplicationTests {
 		//System.out.println(sdf.format(time1));
 		//Timestamp time = new Timestamp(System.currentTimeMillis());
 		//System.out.println(time);
-
-		List<EmailData> li = new ArrayList<>();
-		for (int i = 0; i < li.size(); i++) {
-			EmailData a = li.get(i);
-			String X = a.getTitle();
-			System.out.println(X);
+		List<String> l =getMailMapper.maildatacontent("mine");
+		for (int i=0;i<l.size();i++) {
+			System.out.println(l.get(i));
 		}
-		//getMailMapper.plandataInsert(list);
-
-		//System.out.println(getMailMapper.maildatacontent("mine"));
 	}
 
 	@Test
@@ -371,6 +358,7 @@ class GetmailApplicationTests {
 
 	@Test
 	//判断字符串中是否包含某字段（java.lang.String.contains() 方法）
+	//判断一个字符串是否与列表中某个字符串相等
 	public void isInclude(){
 		String str = "abc";
 		boolean status = str.contains("a");
@@ -478,5 +466,145 @@ for(int i=0;i<title.size();i++){
 			getMailMapper.dailyPlanGetFromConference(list);
 			list.clear();
 		}
+	}
+	@Test
+	public void hotWord() throws IOException {
+		String text="测试定时器运行中创建日历的获取定时器日历定时器";
+		List<Word> a = Tokenizer.segment(text);
+		int k=0;
+		for(int i=0;i<a.size();i++){
+			 if(a.get(i).toString().endsWith("/n")) {
+				 System.out.println(a.get(i) + "的个数为：" + k);
+			 }
+		}
+
+			Map<Word, Integer> tm =new HashMap<>();
+			for (int x = 0; x < a.size(); x++) {
+				if(a.get(x).toString().endsWith("/n")) {
+					if (!tm.containsKey(a.get(x))) {
+						tm.put(a.get(x), 1);
+					} else {
+						int count = tm.get(a.get(x)) + 1;
+						tm.put(a.get(x), count);
+					}
+				}
+			}
+			for (Word key : tm.keySet()) {
+				Integer value=  tm.get(key);
+				Integer max =value;
+				if(value>max){
+					continue;
+
+				}else {
+					System.out.println(max);
+				}
+			}
+
+		//System.out.println(a);
+		//WordFrequency wordFrequency = new WordFrequency();
+		//System.out.println(wordFrequency.getFrequency(a));
+		//TextSimilarity similarity = new CosineSimilarity();
+		//System.out.println(similarity.hotWordTest(a));
+		//System.out.println(wordFrequency.getWordsFrequencyString(wordFrequency.getFrequency(a)));
+
+	}
+
+	@Test
+	public void hotWordTest(){
+		List<String> hotTitle=getMailMapper.selectTitleFromPlanData("yourself");
+		//MyhashMap myhashMap =new MyhashMap();
+		Map<Word, Integer> tm =new HashMap<>();
+		for (int i=0;i<hotTitle.size();i++){
+			//System.out.println(hotTitle.get(i));
+			List<Word> seg = Tokenizer.segment(hotTitle.get(i));
+			//Map<Word, Integer> tm =new HashMap<>();
+			for (int x = 0; x < seg.size(); x++) {
+				if(seg.get(x).toString().endsWith("/n")) {
+					if (!tm.containsKey(seg.get(x))) {
+						tm.put(seg.get(x), 1);
+					} else {
+						int count = tm.get(seg.get(x)) + 1;
+						tm.put(seg.get(x), count);
+						//Set<Word> set = tm.keySet();
+					}
+				}
+			}
+		}
+		//List<Map.Entry<Word,Integer>> list = new ArrayList(tm.entrySet());
+		for (Word key:tm.keySet()){
+			Integer value=tm.get(key);
+			System.out.println(key+":"+value);
+		}
+		List<Map.Entry<Word,Integer>> list = new ArrayList(tm.entrySet());
+		Collections.sort(list, (o1, o2) -> (o1.getValue() - o2.getValue()));
+		String reg = "[^\u4e00-\u9fa5]";
+		String m = list.get(tm.size()-1).getKey().toString().replaceAll(reg,"");
+			System.out.println(list.get(0).getKey().toString().replaceAll(reg,""));//频率最高的关键词
+		//System.out.println(getMaxKeyValue.getMaxValue(tm));//频率最高关键词的频率
+		//System.out.println(tm.keySet());
+		//System.out.println(tm);
+        //将词频统计插入表中
+		List<TitleFrequency> list1=new ArrayList<>();
+		for(int k=0;k<tm.size();k++) {
+			String title=hotTitle.get(k);
+			//System.out.println(title);
+			String c = list.get(k).getKey().toString().replaceAll(reg,"");
+			Integer v=list.get(k).getValue();
+			TitleFrequency t=new TitleFrequency();
+			//List<TitleFrequency> list1=new ArrayList<>();
+			t.setWords(c);
+			t.setFrequency(v);
+			list1.add(t);
+		}
+		getMailMapper.addWordsFrequency(list1);
+		//System.out.println(getMailMapper.selectHottestWords());
+		String word=getMailMapper.selectHottestWords();
+		for(int i=0;i<hotTitle.size();i++){
+			System.out.println(word);
+			int n=hotTitle.get(i).indexOf(m);
+			//boolean b=hotTitle.get(i).contains(word);
+			//System.out.println(b);
+			if(n>0){
+				//System.out.println(hotTitle.get(i));
+			}
+		}
+		System.out.println(getMailMapper.selectByWord(m));
+	}
+
+	@Test
+	public void selectTitleByHottestWord(){
+		List<String> hotTitle=getMailMapper.selectTitleFromPlanData("yourself");//获得日程主题
+		Map<Word, Integer> tm =new HashMap<>();
+		//对每个主题中的名词进行分词，并统计出现频数，封装到一个map中
+		for (int i=0;i<hotTitle.size();i++){
+			List<Word> seg = Tokenizer.segment(hotTitle.get(i));//分词
+			//将分词封装到map中，并累计各词出现频数
+			for (int x = 0; x < seg.size(); x++) {
+				if(seg.get(x).toString().endsWith("/n")) {
+					if (!tm.containsKey(seg.get(x))) {
+						tm.put(seg.get(x), 1);
+					} else {
+						int count = tm.get(seg.get(x)) + 1;
+						tm.put(seg.get(x), count);
+					}
+				}
+			}
+		}
+		//将带词性后缀的中文分词取出纯中文
+		List<Map.Entry<Word,Integer>> list = new ArrayList(tm.entrySet());
+		Collections.sort(list, (o1, o2) -> (o1.getValue() - o2.getValue()));
+		String reg = "[^\u4e00-\u9fa5]";
+		//频数（value）最大的值对应的分词（key）
+		String m = list.get(tm.size()-1).getKey().toString().replaceAll(reg,"");
+		//查询所有包含热搜词的主题所对应的任务
+		List<PlanData> list2=new ArrayList<>();
+		PlanData p=new PlanData();
+		for(int i=0;i<hotTitle.size();i++){
+			int n=hotTitle.get(i).indexOf(m);//判断主题中是否包含热词
+			if(n!=-1){
+				 p =getMailMapper.selectByTitle(hotTitle.get(i));
+			}
+		}
+		System.out.println(list2);
 	}
 }

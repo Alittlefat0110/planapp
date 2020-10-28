@@ -2,16 +2,15 @@ package com.example.getmail.service.impl;
 
 import java.net.URI;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.getmail.contentSimilarity.similarity.text.CosineSimilarity;
 import com.example.getmail.contentSimilarity.similarity.text.TextSimilarity;
+import com.example.getmail.contentSimilarity.tokenizer.Tokenizer;
+import com.example.getmail.contentSimilarity.tokenizer.Word;
 import com.example.getmail.entity.*;
 import com.example.getmail.mapper.GetMailMapper;
 import com.example.getmail.service.GetMailService;
@@ -35,6 +34,7 @@ import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -150,9 +150,9 @@ public class GetMailServiceImpl implements GetMailService {
         Folder inbox = Folder.bind(service, WellKnownFolderName.Calendar); //确定拉取数据来源（类型）
         System.out.println(inbox.getDisplayName());
         Date now = new Date();//获取当前时间
-        Date start = DateUtils.addDays(now,-30);//设置开始时间为当前时间的前30天
+        //Date start = DateUtils.addDays(now,-30);//设置开始时间为当前时间的前30天
         Date end = DateUtils.addDays(now, +30);      //设置截止时间为当前时间后30天
-        CalendarView cView = new CalendarView(start,end);      //指定获取时间段
+        CalendarView cView = new CalendarView(now,end);      //指定获取时间段
         //指定要查看的邮箱
         FolderId folderId = new FolderId(WellKnownFolderName.Calendar, new Mailbox("xgwfat@outlook.com"));
         CalendarFolder calendar = CalendarFolder.bind(service, folderId);
@@ -252,5 +252,70 @@ public class GetMailServiceImpl implements GetMailService {
         Date startTime=DateUtil.beginOfWeek(d);//所在周的开始时间
         Date endTime=DateUtil.endOfWeek(d,true);//所在周的结束时间，以星期天作为一周的最后一天
         return getMailMapper.selectByTimeRange(username,startTime,endTime); //从日程表查询时间段内的日程数据
+    }
+
+    @Override
+    public String getHotWord(){
+        List<String> hotTitle=getMailMapper.selectTitleFromPlanData("yourself");//获得日程主题
+        Map<Word, Integer> tm =new HashMap<>();
+        //对每个主题中的名词进行分词，并统计出现频数，封装到一个map中
+        for (int i=0;i<hotTitle.size();i++){
+            List<Word> seg = Tokenizer.segment(hotTitle.get(i));//分词
+            //将分词封装到map中，并累计各词出现频数
+            for (int x = 0; x < seg.size(); x++) {
+                if(seg.get(x).toString().endsWith("/n")) {
+                    if (!tm.containsKey(seg.get(x))) {
+                        tm.put(seg.get(x), 1);
+                    } else {
+                        int count = tm.get(seg.get(x)) + 1;
+                        tm.put(seg.get(x), count);
+                    }
+                }
+            }
+        }
+        //将带词性后缀的中文分词取出纯中文
+        List<Map.Entry<Word,Integer>> list = new ArrayList(tm.entrySet());
+        Collections.sort(list, (o1, o2) -> (o1.getValue() - o2.getValue()));
+        String reg = "[^\u4e00-\u9fa5]";
+        //频数（value）最大的值对应的分词（key）
+        String HottestWord = list.get(tm.size()-1).getKey().toString().replaceAll(reg,"");
+        return HottestWord;
+    }
+
+    @Override
+    public List<PlanData> selectByTitle(){
+        List<String> hotTitle=getMailMapper.selectTitleFromPlanData("yourself");//获得日程主题
+        Map<Word, Integer> tm =new HashMap<>();
+        //对每个主题中的名词进行分词，并统计出现频数，封装到一个map中
+        for (int i=0;i<hotTitle.size();i++){
+            List<Word> seg = Tokenizer.segment(hotTitle.get(i));//分词
+            //将分词封装到map中，并累计各词出现频数
+            for (int x = 0; x < seg.size(); x++) {
+                if(seg.get(x).toString().endsWith("/n")) {
+                    if (!tm.containsKey(seg.get(x))) {
+                        tm.put(seg.get(x), 1);
+                    } else {
+                        int count = tm.get(seg.get(x)) + 1;
+                        tm.put(seg.get(x), count);
+                    }
+                }
+            }
+        }
+        //将带词性后缀的中文分词取出纯中文
+        List<Map.Entry<Word,Integer>> list = new ArrayList(tm.entrySet());
+        Collections.sort(list, (o1, o2) -> (o1.getValue() - o2.getValue()));
+        String reg = "[^\u4e00-\u9fa5]";
+        //频数（value）最大的值对应的分词（key）
+        String HottestWord = list.get(tm.size()-1).getKey().toString().replaceAll(reg,"");
+        PlanData p =new PlanData();
+        List<PlanData> list2 =new ArrayList<>();
+        for(int i=0;i<hotTitle.size();i++){
+            int n=hotTitle.get(i).indexOf(HottestWord);//判断主题中是否包含热词
+            if(n!=-1){
+                 p=getMailMapper.selectByTitle(hotTitle.get(i));
+                 list2.add(p);
+            }
+        }
+        return list2;
     }
 }

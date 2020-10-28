@@ -14,4 +14,6 @@ public interface GetMailService {
     void transferFromCalendar() throws Exception;//从邮箱拉取会议信息到会议数据表
     List<PlanData> selectByTimeRange(String username,int pageIndex);//查询当前周日程信息
     void  dailyPlanGetFromConference();//以会议数据生成日程表
+    String getHotWord();//查看日程主题中的热搜名词（频数最大）
+    List<PlanData> selectByTitle();//根据主题查询日程
 }

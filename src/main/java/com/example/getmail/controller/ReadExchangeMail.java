@@ -92,6 +92,36 @@ public class ReadExchangeMail  {
         }
         return response;
     }
+    @PostMapping(value = "/DailyPlanTitle/getHottestWord",produces ="application/json;charset=utf-8" )
+    public GetHottestWordResponse getHotWord(){
+        GetHottestWordResponse response=new GetHottestWordResponse();
+        try {
+            String word=getMailService.getHotWord();
+            response.setData(word);
+            response.setErrorCode(ErrorCode.SUCCESS);
+            return response;
+        }catch (Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
+    }
+
+    @PostMapping(value = "/DailyPlan/SelectByHottestWord",produces ="application/json;charset=utf-8" )
+    public SelectDailyPlanByHottestWordResponse SelectByHottestWord(){
+        SelectDailyPlanByHottestWordResponse response=new SelectDailyPlanByHottestWordResponse();
+        try{
+            List<PlanData> list=getMailService.selectByTitle();
+            response.setData(list);
+            response.setErrorCode(ErrorCode.SUCCESS);
+            return response;
+        }catch (Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
+    }
+
 
 
 
