@@ -72,3 +72,11 @@ CREATE TABLE `email_filter` (
   `flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '状态 1：生效  0：禁用',
   PRIMARY KEY (`filter_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='同步过滤条件表';
+
+CREATE TABLE `title_frequency` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '名词id',
+  `words` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主题中分离出的名词',
+  `frequency` int NOT NULL COMMENT '出现频数',
+  PRIMARY KEY (`id`,`words`) USING BTREE,
+  UNIQUE KEY `words` (`words`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='日程主题名词词频统计表';
