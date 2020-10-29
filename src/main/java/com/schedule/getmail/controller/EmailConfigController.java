@@ -9,6 +9,9 @@ import com.schedule.getmail.bean.response.SelectEmailConfigResponse;
 import com.schedule.getmail.constant.ErrorCode;
 import com.schedule.getmail.entity.EmailConfig;
 import com.schedule.getmail.service.IEmailConfigService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +41,7 @@ public class EmailConfigController {
      * @param request
      * @return
      */
+    @ApiOperation(value = "绑定邮箱,时间设置,关键词、发件人过滤接口", notes="绑定邮箱,时间设置,关键词、发件人过滤接口")
     @PostMapping(value = "/emailConfig/saveOrUpdate", produces = "application/json;charset=utf-8")
     public AddEmailConfigResponse insertOrUpdateMail(@RequestBody AddEmailConfigRequest request){
         AddEmailConfigResponse response=new AddEmailConfigResponse();
@@ -60,6 +64,7 @@ public class EmailConfigController {
      * @param request
      * @return
      */
+    @ApiOperation(value = "查询绑定邮箱,时间设置,关键词、发件人过滤接口", notes="查询绑定邮箱,时间设置,关键词、发件人过滤接口")
     @PostMapping(value = "/emailConfig/getEmailConfig", produces = "application/json;charset=utf-8")
     public SelectEmailConfigResponse mailSelect(@RequestBody SelectEmailConfigRequest request){
         SelectEmailConfigResponse response=new SelectEmailConfigResponse();
