@@ -47,6 +47,20 @@ public class EmailConfig implements Serializable {
     private String password;
 
     /**
+     * 邮箱同步开始时间
+     */
+    private Timestamp startTime;
+
+    /**
+     * 邮箱同步过滤关键词
+     */
+    private String keyWord;
+
+    /**
+     * 过滤邮箱
+     */
+    private String keyEmail;
+    /**
      * 密码加密方式，1：明文，2：*
      */
     private String encrypt;
