@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.example.getmail.mapper.GetMailMapper">
-    <resultMap id="planDataMap" type="com.example.getmail.entity.PlanData">
+<mapper namespace="com.schedule.getmail.mapper.GetMailMapper">
+    <resultMap id="planDataMap" type="com.schedule.getmail.entity.PlanData">
         <result column="title" property="title"/>
         <result column="content" property="content"/>
         <result column="position" property="position"/>
@@ -11,7 +11,7 @@
         <result column="endtime" property="endtime"/>
         <result column="plantime" property="plantime"/>
     </resultMap>
-    <resultMap id="ConferenceData" type="com.example.getmail.entity.ConferenceData">
+    <resultMap id="ConferenceData" type="com.schedule.getmail.entity.ConferenceData">
         <result column="title" property="title"/>
         <result column="content" property="content"/>
         <result column="sender" property="sender"/>
@@ -20,17 +20,17 @@
         <result column="starttime" property="starttime"/>
         <result column="endtime" property="endtime"/>
     </resultMap>
-    <resultMap id="EmailFilter" type="com.example.getmail.entity.EmailFilter">
+    <resultMap id="EmailFilter" type="com.schedule.getmail.entity.EmailFilter">
         <result column="filter_name" property="filter_name"/>
         <result column="filter_key" property="filter_key"/>
     </resultMap>
 
-    <resultMap id="EmailConfig" type="com.example.getmail.entity.EmailConfig">
+    <resultMap id="EmailConfig" type="com.schedule.getmail.entity.EmailConfig">
         <result column="email_id" property="email_id"/>
         <result column="email" property="email"/>
     </resultMap>
     <!--邮箱配置start-->
-    <insert  id="mailInsert" parameterType="com.example.getmail.mapper.GetMailMapper" keyProperty="email_id" useGeneratedKeys="true" >
+    <insert id="mailInsert" parameterType="com.schedule.getmail.mapper.GetMailMapper" keyProperty="email_id" useGeneratedKeys="true" >
         insert into email_config (username, email, password,encrypt,createtime,updatetime,flag) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.username}, #{cus.email}, #{cus.password}, #{cus.encrypt}, #{cus.createtime}, #{cus.updatetime}, #{cus.flag})
@@ -41,7 +41,7 @@
         SELECT email_id,email FROM email_config where username=#{username}
     </select>
     <!--删除邮箱post-->
-    <delete id="mailDelete" parameterType="com.example.getmail.mapper.GetMailMapper">
+    <delete id="mailDelete" parameterType="com.schedule.getmail.mapper.GetMailMapper">
             delete from email_config where email_id in
         <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
             #{item}
@@ -83,7 +83,7 @@
     <select id="selectConferenceData" resultMap="ConferenceData" >
         select title,content,position,starttime,endtime from conference_data;
     </select>
-    <insert  id="dailyPlanGetFromConference" parameterType="com.example.getmail.entity.PlanData" keyProperty="plan_id" useGeneratedKeys="true" >
+    <insert id="dailyPlanGetFromConference" parameterType="com.schedule.getmail.entity.PlanData" keyProperty="plan_id" useGeneratedKeys="true" >
         insert ignore into plan_data (username, title, content,position,starttime,endtime,plantime,createtime,updatetime,flag,source) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.username},
@@ -152,7 +152,7 @@
     </select>
 
 
-    <insert  id="addWordsFrequency" parameterType="com.example.getmail.entity.TitleFrequency" keyProperty="id" useGeneratedKeys="true" >
+    <insert id="addWordsFrequency" parameterType="com.schedule.getmail.entity.TitleFrequency" keyProperty="id" useGeneratedKeys="true" >
         insert  into title_frequency (words, frequency) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.words},
