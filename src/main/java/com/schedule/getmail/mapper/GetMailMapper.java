@@ -1,6 +1,5 @@
 package com.schedule.getmail.mapper;
 
-import com.planapp.getmail.entity.*;
 import com.schedule.getmail.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

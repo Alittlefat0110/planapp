@@ -1,7 +1,7 @@
 package com.schedule.getmail.controller;
 
 import com.schedule.getmail.mapper.GetMailMapper;
-import com.schedule.getmail.service.GetMailService;
+//import com.schedule.getmail.service.GetMailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +11,9 @@ import javax.annotation.Resource;
 @RestController
 @Configuration
 public class ReadExchangeMail  {
-    @Resource
-    private GetMailService getMailService;
-    private GetMailMapper getMailMapper ;
+//    @Resource
+//    private GetMailService getMailService;
+//    private GetMailMapper getMailMapper ;
 
 //    //1.添加同步邮箱
 //    @PostMapping(value = "/emailConfig/add", produces = "application/json;charset=utf-8")

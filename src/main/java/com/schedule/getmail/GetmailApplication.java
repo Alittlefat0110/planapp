@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @EnableScheduling
 @Component
-@MapperScan("com.example.getmail.mapper")
+@MapperScan("com.schedule.getmail.mapper")
 @SpringBootApplication
 public class GetmailApplication {
 

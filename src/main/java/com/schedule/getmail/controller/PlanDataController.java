@@ -5,7 +5,6 @@ import com.schedule.getmail.bean.request.AddDailyPlanRequest;
 import com.schedule.getmail.bean.request.DeleteDailyPlanRequest;
 import com.schedule.getmail.bean.request.SelectDailyPlanByTimeRangeRequest;
 import com.schedule.getmail.bean.request.UpdateDailyPlanRequest;
-import com.planapp.getmail.bean.response.*;
 import com.schedule.getmail.bean.response.*;
 import com.schedule.getmail.constant.ErrorCode;
 import com.schedule.getmail.entity.PlanData;
