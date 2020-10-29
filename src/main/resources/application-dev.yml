@@ -3,5 +3,5 @@ spring:
     druid:
       url: jdbc:mysql://localhost:3306/planapp?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=CTT
       username: root
-      password: root
+      password: giyoyo9420
       driver-class-name: com.mysql.cj.jdbc.Driver
