@@ -17,9 +17,12 @@ server:
 
 mybatis:
   mapper-locations : classpath:mybatis/mapper/*.xml
-  type-aliases-package : com.example.getmail.entity
+  type-aliases-package : com.schedule.getmail.entity
   config-location: classpath:mybatis/mybatis-config.xml
 
 logging:
   file:
     path: logs
+
+swagger:
+  enable: true

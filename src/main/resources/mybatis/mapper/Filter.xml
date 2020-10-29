@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.example.getmail.mapper.FilterMapper">
-    <resultMap id="EmailFilterMap" type="com.example.getmail.entity.EmailFilter">
+<mapper namespace="com.schedule.getmail.mapper.FilterMapper">
+    <resultMap id="EmailFilterMap" type="com.schedule.getmail.entity.EmailFilter">
         <result column="filter_id" property="filter_id"/>
         <result column="username" property="username"/>
         <result column="filter_name" property="filter_name"/>
@@ -15,7 +15,7 @@
     </resultMap>
 
     <!--设置过滤-->
-    <insert  id="addFilter" parameterType="com.example.getmail.mapper.FilterMapper" keyProperty="filter_id" useGeneratedKeys="true" >
+    <insert id="addFilter" parameterType="com.schedule.getmail.mapper.FilterMapper" keyProperty="filter_id" useGeneratedKeys="true" >
         insert into email_filter (filter_id,username,filter_name,filter_key, type,createtime,updatetime,flag) values
         <foreach collection="list" separator="," item="cus">
             (#{cus.filter_id},
