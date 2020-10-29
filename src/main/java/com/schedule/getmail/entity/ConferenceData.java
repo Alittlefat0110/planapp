@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -43,7 +44,7 @@ public class ConferenceData implements Serializable {
     /**
      * 接收时间
      */
-    private LocalDateTime receivetime;
+    private Date receiveTime;
 
     /**
      * 会议主题
@@ -63,17 +64,17 @@ public class ConferenceData implements Serializable {
     /**
      * 会议开始时间
      */
-    private LocalDateTime starttime;
+    private Date startTime;
 
     /**
      * 会议结束时间
      */
-    private LocalDateTime endtime;
+    private Date endTime;
 
     /**
      * 创建时间
      */
-    private LocalDateTime createtime;
+    private Date createTime;
 
     /**
      * 类型

@@ -1,77 +1,77 @@
-//package com.schedule.getmail;
-//
-//import cn.hutool.core.collection.CollectionUtil;
-//import cn.hutool.core.util.StrUtil;
-//import com.schedule.getmail.contentSimilarity.similarity.text.CosineSimilarity;
-//import com.schedule.getmail.contentSimilarity.similarity.text.TextSimilarity;
-//import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
-//import com.schedule.getmail.contentSimilarity.tokenizer.Word;
-//import com.schedule.getmail.mapper.DailyPlanAddBySelfMapper;
-//import com.schedule.getmail.mapper.GetMailMapper;
-//import com.schedule.getmail.service.DailyPlanConfigBySelfService;
-//import com.schedule.getmail.service.GetMailService;
-//import com.schedule.getmail.util.HtmlUtil;
-//import com.schedule.getmail.entity.ConferenceData;
-//import com.schedule.getmail.entity.EmailData;
-//import com.schedule.getmail.entity.PlanData;
-//import com.schedule.getmail.entity.TitleFrequency;
-//import microsoft.exchange.webservices.data.core.ExchangeService;
-//import microsoft.exchange.webservices.data.core.PropertySet;
-//import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
-//import microsoft.exchange.webservices.data.core.enumeration.availability.MeetingAttendeeType;
-//import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
-//import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
-//import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
-//import microsoft.exchange.webservices.data.core.response.AttendeeAvailability;
-//import microsoft.exchange.webservices.data.core.service.folder.CalendarFolder;
-//import microsoft.exchange.webservices.data.core.service.folder.Folder;
-//import microsoft.exchange.webservices.data.core.service.item.Appointment;
-//import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
-//import microsoft.exchange.webservices.data.core.service.item.Item;
-//import microsoft.exchange.webservices.data.core.service.schema.AppointmentSchema;
-//import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
-//import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-//import microsoft.exchange.webservices.data.credential.WebCredentials;
-//import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
-//import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
-//import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
-//import microsoft.exchange.webservices.data.property.complex.Attendee;
-//import microsoft.exchange.webservices.data.property.complex.FolderId;
-//import microsoft.exchange.webservices.data.property.complex.Mailbox;
-//import microsoft.exchange.webservices.data.property.complex.availability.CalendarEvent;
-//import microsoft.exchange.webservices.data.property.complex.availability.CalendarEventDetails;
-//import microsoft.exchange.webservices.data.search.CalendarView;
-//import microsoft.exchange.webservices.data.search.FindItemsResults;
-//import microsoft.exchange.webservices.data.search.ItemView;
-//import org.apache.commons.lang3.StringUtils;
-//import org.apache.commons.lang3.time.DateUtils;
-//import org.joda.time.DateTime;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.scheduling.annotation.EnableScheduling;
-//import org.springframework.stereotype.Component;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import javax.annotation.Resource;
-//import java.io.IOException;
-//import java.net.URI;
-//import java.sql.Timestamp;
-//import java.util.*;
-//
-//@RestController
-//@Component
-//@EnableScheduling
-//@SpringBootTest
-//class GetmailApplicationTests {
-//	EmailData emailData = new EmailData();
-//	HtmlUtil a;
-//	@Resource
-//	private GetMailMapper getMailMapper;
+package com.schedule.getmail;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.schedule.getmail.contentSimilarity.similarity.text.CosineSimilarity;
+import com.schedule.getmail.contentSimilarity.similarity.text.TextSimilarity;
+import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
+import com.schedule.getmail.contentSimilarity.tokenizer.Word;
+import com.schedule.getmail.mapper.DailyPlanAddBySelfMapper;
+import com.schedule.getmail.mapper.GetMailMapper;
+import com.schedule.getmail.service.DailyPlanConfigBySelfService;
+import com.schedule.getmail.util.HtmlUtil;
+import com.schedule.getmail.entity.ConferenceData;
+import com.schedule.getmail.entity.EmailData;
+import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.TitleFrequency;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.PropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
+import microsoft.exchange.webservices.data.core.enumeration.availability.MeetingAttendeeType;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
+import microsoft.exchange.webservices.data.core.response.AttendeeAvailability;
+import microsoft.exchange.webservices.data.core.service.folder.CalendarFolder;
+import microsoft.exchange.webservices.data.core.service.folder.Folder;
+import microsoft.exchange.webservices.data.core.service.item.Appointment;
+import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
+import microsoft.exchange.webservices.data.core.service.item.Item;
+import microsoft.exchange.webservices.data.core.service.schema.AppointmentSchema;
+import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
+import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
+import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
+import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
+import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
+import microsoft.exchange.webservices.data.property.complex.Attendee;
+import microsoft.exchange.webservices.data.property.complex.FolderId;
+import microsoft.exchange.webservices.data.property.complex.Mailbox;
+import microsoft.exchange.webservices.data.property.complex.availability.CalendarEvent;
+import microsoft.exchange.webservices.data.property.complex.availability.CalendarEventDetails;
+import microsoft.exchange.webservices.data.search.CalendarView;
+import microsoft.exchange.webservices.data.search.FindItemsResults;
+import microsoft.exchange.webservices.data.search.ItemView;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URI;
+import java.sql.Timestamp;
+import java.util.*;
+
+@RestController
+@Component
+@EnableScheduling
+@SpringBootTest
+class GetmailApplicationTests {
+	EmailData emailData = new EmailData();
+	HtmlUtil a;
+	@Resource
+	private GetMailMapper getMailMapper;
 //	private GetMailService getMailService;
-//	private DailyPlanAddBySelfMapper dailyPlanAddBySelfMapper;
-//	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
-//
-//
+	private DailyPlanAddBySelfMapper dailyPlanAddBySelfMapper;
+	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
+
+
+
 //	@Test
 //	public void gettime() {
 //		//long l = System.currentTimeMillis();
@@ -85,55 +85,47 @@
 //			System.out.println(l.get(i));
 //		}
 //	}
-//
-//	@Test
-//	//@Scheduled(cron = "0/3 * * * * ?")
-//	public void makepemail() throws Exception {
-//
-//		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); //设置TLS版本
-//		//使用exchange服务工具类创建服务
-//		//ExchangeMailUtil exchangeMailUtil = new ExchangeMailUtil(mailServer, user, password, readUrlPrefix);
-//		//ExchangeService service = exchangeMailUtil.getExchangeService();
-//		//创建exchange服务 ExchangeVersion.Exchange2010_SP1    (服务版本号)
-//		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
-//		ExchangeCredentials credentials = new WebCredentials("xgwfat@outlook.com", "giyoyo9420", "outlook.com");
-//		service.setCredentials(credentials);
-//		service.setUrl(new URI("https://outlook.Office365.com/EWS/Exchange.asmx"));
-//		// Bind to the Inbox.
-//		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
-//		System.out.println(inbox.getDisplayName());
-//		ItemView itemView = new ItemView(10000);
-//		itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
-//
-//		// 查询，插入数据
-//		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
-//		ArrayList<Item> items = findResults.getItems();
-//		List<EmailData> list = new ArrayList<>();
-//		for (int i = 0; i < items.size(); i++) {
-//			EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
-//			message.load();
-//
-//			//将同步邮箱数据插入mysql数据库
-//			EmailData h = new EmailData();
-//			h.setEmail_ref_id(items.get(i).getId().toString()); //message ID
-//			h.setSender(message.getSender().toString()); //发件人
-//			h.setTitle(items.get(i).getSubject()); //主题
-//			String html_body = message.getBody().toString();
-//			String body = a.getContentFromHtml(html_body);
-//			h.setContent(body); //邮件内容
-//			h.setReceivetime(items.get(i).getDateTimeReceived()); //收件时间
-//			h.setOwner("mine");
-//			Timestamp time = new Timestamp(System.currentTimeMillis());
-//			h.setCreatetime(time);
-//			h.setUpdatetime(time);
-//			list.add(h);
-//			//getMailMapper.transferfromemail(list);
-//		}
-//		getMailMapper.transferFromEmail(list);
-//
-//	}
-//
-//
+
+	@Test
+	//@Scheduled(cron = "0/3 * * * * ?")
+	public void makepemail() throws Exception {
+
+		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); //设置TLS版本
+		//使用exchange服务工具类创建服务
+		//ExchangeMailUtil exchangeMailUtil = new ExchangeMailUtil(mailServer, user, password, readUrlPrefix);
+		//ExchangeService service = exchangeMailUtil.getExchangeService();
+		//创建exchange服务 ExchangeVersion.Exchange2010_SP1    (服务版本号)
+		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
+		ExchangeCredentials credentials = new WebCredentials("xgwfat@outlook.com", "giyoyo9420", "outlook.com");
+		service.setCredentials(credentials);
+		service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
+		// Bind to the Inbox.
+		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
+		System.out.println(inbox.getDisplayName());
+		ItemView itemView = new ItemView(10);
+		itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
+
+		// 查询，插入数据
+		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
+		ArrayList<Item> items = findResults.getItems();
+		List<EmailData> list = new ArrayList<>();
+		for (int i = 0; i < items.size(); i++) {
+			EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
+			message.load();
+            //发件人
+            System.out.println(message.getSender());
+			//主题
+			System.out.println(items.get(i).getSubject());
+			//内容
+            String body = a.getContentFromHtml(message.getBody().toString());
+            System.out.println(body);
+            //发件人
+
+		}
+
+	}
+
+
 //	@Test
 //	public void plantable() {
 //		//getMailMapper.plantableInsert();
@@ -610,4 +602,4 @@
 //		}
 //		System.out.println(list2);
 //	}
-//}
+}

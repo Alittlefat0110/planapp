@@ -12,5 +12,4 @@ import com.schedule.getmail.entity.EmailData;
  * @since 2020-10-28
  */
 public interface IEmailDataService extends IService<EmailData> {
-
 }
