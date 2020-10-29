@@ -43,7 +43,7 @@ public class PlanDataController {
     public SelectPlanDataResponse selectByTimeRange (@RequestBody SelectDailyPlanByTimeRangeRequest request) {
         SelectPlanDataResponse response=new SelectPlanDataResponse();
         try {
-            List<PlanData> list=planDataService.selectByTimeRange(request.getUsername(),request.getPageIndex());
+            List<PlanData> list=planDataService.selectByTimeRange(request.getUserName(),request.getPageIndex());
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
             return response;
@@ -66,8 +66,8 @@ public class PlanDataController {
         try {
             List<PlanData> list = planDataService.list(new QueryWrapper<PlanData>().lambda()
                     .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
-                    .eq(!StringUtils.isEmpty(request.getTime()), PlanData::getStarttime, request.getTime())
-                    .orderByDesc(PlanData::getStarttime));
+                    .eq(!StringUtils.isEmpty(request.getTime()), PlanData::getStartTime, request.getTime())
+                    .orderByDesc(PlanData::getStartTime));
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
             return response;
@@ -88,7 +88,7 @@ public class PlanDataController {
     public SelectPlanDataResponse selectByMonthRange (@RequestBody SelectDailyPlanByMonthRangeRequest request) {
         SelectPlanDataResponse response=new SelectPlanDataResponse();
         try {
-            List<PlanData> list=planDataService.selectByMonthRange(request.getUsername());
+            List<PlanData> list=planDataService.selectByMonthRange(request.getUserName());
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
             return response;
@@ -156,7 +156,7 @@ public class PlanDataController {
             planDataService.remove(new QueryWrapper<PlanData>().lambda()
                     .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
                     .eq(!StringUtils.isEmpty(request.getPlanId()), PlanData::getPlanId, request.getPlanId())
-                    .orderByDesc(PlanData::getStarttime));
+                    .orderByDesc(PlanData::getStartTime));
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);

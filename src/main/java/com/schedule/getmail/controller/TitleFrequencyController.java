@@ -2,7 +2,6 @@ package com.schedule.getmail.controller;
 
 
 import com.schedule.getmail.bean.response.GetHottestWordResponse;
-import com.schedule.getmail.bean.response.SelectDailyPlanByHottestWordResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TitleFrequencyController {
 
     /**
-     * 获取前10热词
+     * 获取前十热词
      * @return
      */
     @PostMapping(value = "/DailyPlanTitle/getHottestWord",produces ="application/json;charset=utf-8" )
@@ -42,9 +41,9 @@ public class TitleFrequencyController {
      * 根据热词查询所有和热词相关
      * @return
      */
-    @PostMapping(value = "/DailyPlan/SelectByHottestWord",produces ="application/json;charset=utf-8" )
-    public SelectDailyPlanByHottestWordResponse SelectByHottestWord(){
-        SelectDailyPlanByHottestWordResponse response=new SelectDailyPlanByHottestWordResponse();
+//    @PostMapping(value = "/DailyPlan/SelectByHottestWord",produces ="application/json;charset=utf-8" )
+//    public SelectDailyPlanByHottestWordResponse SelectByHottestWord(){
+//        SelectDailyPlanByHottestWordResponse response=new SelectDailyPlanByHottestWordResponse();
 //        try{
 //            List<PlanData> list=getMailService.selectByTitle();
 //            response.setData(list);
@@ -54,7 +53,7 @@ public class TitleFrequencyController {
 //            log.error("",e);
 //            response.setErrorCode(ErrorCode.DB_ERROR);
 //        }
-        return response;
-    }
+//        return response;
+//    }
 
 }

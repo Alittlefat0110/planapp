@@ -4,16 +4,17 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * 新增planData request
+ */
 @Data
 public class AddDailyPlanRequest {
-
-    String username;
+    String userName;
     String title;
     String content;
     String position;
-    Date starttime;
-    Date endtime;
-    Date plantime;
+    Date startTime;
+    Date endTime;
+    Date planTime;
     Long planId;
-
 }

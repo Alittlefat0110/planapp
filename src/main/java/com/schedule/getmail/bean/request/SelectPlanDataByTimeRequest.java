@@ -7,8 +7,6 @@ import lombok.Data;
  */
 @Data
 public class SelectPlanDataByTimeRequest {
-
     private String userName;
-
     private String time;
 }

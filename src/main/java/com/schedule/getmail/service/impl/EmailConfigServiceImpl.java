@@ -31,7 +31,7 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
     public boolean saveOrUpdate(AddEmailConfigRequest request) {
         int flag  = 0;
         //根据userName判断是否已经绑定
-        String username = request.getUsername();
+        String username = request.getUserName();
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
         EmailConfig emailConfig1 = emailConfigMapper.selectOne(new QueryWrapper<EmailConfig>().lambda()
@@ -40,7 +40,7 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
         if(CheckUtil.isEmpty(emailConfig1)){
             EmailConfig emailConfig = new EmailConfig();
             //添加用户名
-            emailConfig.setUsername(request.getUsername());
+            emailConfig.setUsername(request.getUserName());
             //添加邮箱
             emailConfig.setEmail(request.getEmail());
             //添加密码

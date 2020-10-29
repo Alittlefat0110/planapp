@@ -54,27 +54,27 @@ public class PlanData implements Serializable {
     /**
      * 会议开始时间
      */
-    private Date starttime;
+    private Date startTime;
 
     /**
      * 会议结束时间
      */
-    private Date endtime;
+    private Date endTime;
 
     /**
      * 待办时间
      */
-    private Date plantime;
+    private Date planTime;
 
     /**
      * 创建时间
      */
-    private Timestamp createtime;
+    private Timestamp createTime;
 
     /**
      * 更新时间
      */
-    private Timestamp updatetime;
+    private Timestamp updateTime;
 
     /**
      * 状态 1-正常，0-禁用 -1,已删除

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.schedule.getmail.bean.request.AddDailyPlanRequest;
-import com.schedule.getmail.entity.EmailConfig;
 import com.schedule.getmail.entity.PlanData;
 import com.schedule.getmail.mapper.PlanDataMapper;
 import com.schedule.getmail.service.IPlanDataService;
@@ -19,7 +18,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -68,7 +66,7 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
                 .ne(PlanData::getSource,"Message")
                 .apply("date_format (starttime,'%Y-%m-%d') >= date_format('" + first + "','%Y-%m-%d')")
                 .apply("date_format (starttime,'%Y-%m-%d') <= date_format('" + last + "','%Y-%m-%d')")
-                .orderByAsc(PlanData::getStarttime));
+                .orderByAsc(PlanData::getStartTime));
     }
 
     @Override
@@ -78,17 +76,17 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
         if(CheckUtil.isEmpty(request.getPlanId())){
             BeanUtils.copyProperties(request,planData);
             planData.setSource("0");
-            planData.setCreatetime(new Timestamp(System.currentTimeMillis()));
+            planData.setCreateTime(new Timestamp(System.currentTimeMillis()));
             flag = planDataMapper.insert(planData);
         }else {
             PlanData p = planDataMapper.selectById(request.getPlanId());
             if(CheckUtil.isEmpty(p)){
                 p.setContent(request.getContent());
                 p.setTitle(request.getTitle());
-                p.setUpdatetime(new Timestamp(System.currentTimeMillis()));
+                p.setUpdateTime(new Timestamp(System.currentTimeMillis()));
                 p.setPosition(request.getPosition());
-                p.setStarttime(request.getStarttime());
-                p.setEndtime(request.getEndtime());
+                p.setStartTime(request.getStartTime());
+                p.setEndTime(request.getEndTime());
                 flag = planDataMapper.updateById(p);
             }
         }
