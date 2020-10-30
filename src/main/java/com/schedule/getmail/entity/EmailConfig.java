@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 /**
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author StrTom
- * @since 2020-10-28
+ * @since 2020-10-30
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -57,9 +56,9 @@ public class EmailConfig implements Serializable {
     private String station;
 
     /**
-     * 邮箱同步开始时间
+     * 设置邮箱同步开始时间
      */
-    private Timestamp startTime;
+    private LocalDateTime startTime;
 
     /**
      * 过滤关键词/角色标签
@@ -75,6 +74,7 @@ public class EmailConfig implements Serializable {
      * 过滤邮箱
      */
     private String keyEmail;
+
     /**
      * 密码加密方式，1：明文，2：*
      */
@@ -83,15 +83,15 @@ public class EmailConfig implements Serializable {
     /**
      * 创建时间
      */
-    private Timestamp createTime;
+    private LocalDateTime createtime;
 
     /**
      * 更新时间
      */
-    private Timestamp updateTime;
+    private LocalDateTime updatetime;
 
     /**
-     * 状态
+     * 是否只接收chinamoney邮件  1：是/ 0：不是
      */
     private String flag;
 

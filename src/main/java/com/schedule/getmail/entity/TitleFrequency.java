@@ -14,7 +14,7 @@ import java.io.Serializable;
  * </p>
  *
  * @author StrTom
- * @since 2020-10-28
+ * @since 2020-10-30
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -24,11 +24,10 @@ public class TitleFrequency implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * id
+     * ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
     /**
      * 主题中分离出的名词
      */

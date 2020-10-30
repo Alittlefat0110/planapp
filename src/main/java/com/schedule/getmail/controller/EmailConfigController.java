@@ -3,11 +3,15 @@ package com.schedule.getmail.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.schedule.getmail.bean.request.AddEmailConfigRequest;
+import com.schedule.getmail.bean.request.SelectConferenceDataByToEmailRequest;
 import com.schedule.getmail.bean.response.AddEmailConfigResponse;
 import com.schedule.getmail.bean.request.SelectEmailConfigRequest;
 import com.schedule.getmail.bean.response.SelectEmailConfigResponse;
+import com.schedule.getmail.bean.response.SelectFromEmailResponse;
 import com.schedule.getmail.constant.ErrorCode;
+import com.schedule.getmail.entity.ConferenceData;
 import com.schedule.getmail.entity.EmailConfig;
+import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.service.IEmailConfigService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -34,6 +40,9 @@ public class EmailConfigController {
 
     @Resource
     private IEmailConfigService emailConfigService;
+
+    @Resource
+    private IConferenceDataService conferenceDataService;
 
     /**
      * todo 配置全部放入到这里
@@ -74,6 +83,27 @@ public class EmailConfigController {
             );
             emailConfig.setPassword(null);
             response.setData(emailConfig);
+            response.setErrorCode(ErrorCode.SUCCESS);
+        }catch(Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
+    }
+
+    @ApiOperation(value = "查询发件人邮箱接口", notes="查询发件人邮箱接口")
+    @PostMapping(value = "/emailConfig/getFromEmail", produces = "application/json;charset=utf-8")
+    public SelectFromEmailResponse getFromEmail(@RequestBody SelectConferenceDataByToEmailRequest request){
+        SelectFromEmailResponse response=new SelectFromEmailResponse();
+        try {
+            List<ConferenceData> conferenceDataList = conferenceDataService.list(new QueryWrapper<ConferenceData>().lambda()
+                    .eq(!StringUtils.isEmpty(request.getEmail()), ConferenceData::getSender,request.getEmail())
+            );
+            List<String> list = new ArrayList<>();
+            for (ConferenceData c: conferenceDataList) {
+                list.add(c.getSender());
+            }
+            response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);

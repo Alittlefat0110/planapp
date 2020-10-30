@@ -7,8 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -16,7 +15,7 @@ import java.util.Date;
  * </p>
  *
  * @author StrTom
- * @since 2020-10-28
+ * @since 2020-10-30
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -37,6 +36,16 @@ public class PlanData implements Serializable {
     private String username;
 
     /**
+     * 发件人
+     */
+    private String sender;
+
+    /**
+     * 收件人
+     */
+    private String receiver;
+
+    /**
      * 主题
      */
     private String title;
@@ -54,42 +63,32 @@ public class PlanData implements Serializable {
     /**
      * 会议开始时间
      */
-    private Date startTime;
+    private LocalDateTime startTime;
 
     /**
      * 会议结束时间
      */
-    private Date endTime;
+    private LocalDateTime endTime;
 
     /**
-     * 待办时间
+     * 接收时间
      */
-    private Date planTime;
+    private LocalDateTime receiveTime;
 
     /**
      * 创建时间
      */
-    private Timestamp createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private Timestamp updateTime;
-
-    /**
-     * 状态 1-正常，0-禁用 -1,已删除
-     */
-    private String flag;
+    private LocalDateTime updateTime;
 
     /**
      * 数据来源 0：手动添加 1:邮件同步
      */
     private String source;
-
-    /**
-     * 发件人
-     */
-    private String sender;
 
 
 }
