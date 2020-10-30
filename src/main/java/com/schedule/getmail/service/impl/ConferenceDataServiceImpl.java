@@ -12,7 +12,7 @@ import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.util.CheckUtil;
 import com.schedule.getmail.util.DateUtil;
 import com.schedule.getmail.util.HtmlUtil;
-import com.schedule.getmail.util.SplitUtil;
+import com.schedule.getmail.util.TokenUtil;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
@@ -32,16 +32,14 @@ import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.net.URI;
 import java.sql.Timestamp;
+import java.sql.Wrapper;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -82,19 +80,32 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
             Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
             System.out.println(inbox.getDisplayName());
             ItemView itemView = new ItemView(10000);
-            itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
-            // 查询，插入数据
+            //按时间获取
+            itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);
             FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
             ArrayList<Item> items = findResults.getItems();
             if(CheckUtil.isEmpty(emailConfig.getStartTime())){
                 emailConfig.setStartTime(new Timestamp(DateUtil.getFirstDay().getTime()));
             }
+            //查询过滤关键词/邮箱
+            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWord());
+            String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
             for (int j = 0; j < items.size(); j++) {
                 Item item = items.get(j);
                 EmailMessage message = EmailMessage.bind(service, item.getId());
                 message.load();
+                //获取邮件主题
+                String subject= item.getSubject();
+                //获取发件人邮箱
+                String sender = message.getSender().toString();
                 //todo 过滤 关键字，发件人
-
+                //判断邮件主题是否含有过滤关键词
+                boolean statusTitle = StrUtil.containsAny(subject, keyWords);
+                //判断是否是黑名单邮箱
+                boolean statusSender=StrUtil.equalsAny(sender,keyEmails);
+                if (statusTitle||statusSender) {
+                    continue;
+                }
                 //若邮件为会议类型则跳过
                 if(item.getXmlElementName().equals("MeetingRequest")){
                     continue;
@@ -108,23 +119,26 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 if(!CheckUtil.isEmpty(cd)){
                     continue;
                 }
+                message.getReceivedBy();
                 ConferenceData conferenceData = new ConferenceData();
-                //1.获取参考ID
+                //1.插入参考ID
                 conferenceData.setCalendarId(item.getId().toString());
-                //2.获取发件人
+                //2.插入发件人
                 conferenceData.setSender(message.getSender().toString());
-                //3.收件时间
+                //3.插入收件人
+                conferenceData.setReceiver(message.getReceivedBy().toString());
+                //3.插入收件时间
                 conferenceData.setReceiveTime(item.getDateTimeReceived());
-                //4.获取主题
+                //4.插入主题
                 conferenceData.setTitle(item.getSubject());
                 //获取html文档中body的文本内容（邮件内容）
                 String html_body = message.getBody().toString();
                 String body = HtmlUtil.getContentFromHtml(html_body);
-                //5.邮件内容
+                //5.插入邮件内容
                 conferenceData.setContent(body);
-                //6.添加创建时间
+                //6.插入创建时间
                 conferenceData.setCreateTime(time);
-                //7.邮件类型
+                //7.插入邮件类型
                 conferenceData.setType(item.getXmlElementName());
                 conferenceDataMapper.insert(conferenceData);
             }
@@ -169,9 +183,10 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //查询关键字、发件人黑名单 todo
-            String[] keyWords= SplitUtil.splitWords(emailConfig.getKeyWord());
-            String[] keyEmails= SplitUtil.splitWords(emailConfig.getKeyEmail());
+            //查询过滤关键词/邮箱 todo
+            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWord());
+            String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
+
             ArrayList<Appointment> appointmentItems = findResults==null?null:findResults.getItems();
             for(Appointment ap:appointmentItems) {
                 ap.load();
@@ -186,9 +201,9 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 //获取会议组织者
                 String sender =ap.getOrganizer().toString();
                 //todo 过滤关键字 发件人
-                //是否含有过滤关键字 todo
+                //判断是否含有过滤关键字 todo
                 boolean statusTitle = StrUtil.containsAny(subject, keyWords);
-                //是否是黑名单邮箱（数据表中只存储黑名单）todo
+                //判断是否为黑名单邮箱 todo
                 boolean statusSender=StrUtil.equalsAny(sender,keyEmails);
                 //若邮箱主题包含过滤关键词或发件人在黑名单中，则过滤该会议
                 if (statusTitle||statusSender) {
@@ -196,13 +211,17 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 } else {
                     ConferenceData conferenceData = new ConferenceData();
                     //插入参考ID
-                    conferenceData.setCalendarId(ap.getId().toString());    //message ID
-                    //插入会议组织者
-                    conferenceData.setSender(ap.getOrganizer().toString());  //会议组织者
+                    conferenceData.setCalendarId(ap.getId().toString());
+                    //插入会议组织者（发件人）
+                    conferenceData.setSender(ap.getOrganizer().toString());
+                    //参加会议的员工
+                    List<Attendee> RequiredAttendees = ap.getRequiredAttendees().getItems();
+                    List<Attendee> OptionalAttendees = ap.getOptionalAttendees().getItems();
+                    conferenceData.setReceiver("");
                     //插入接收时间
-                    conferenceData.setReceiveTime(ap.getDateTimeReceived()); //接收时间
+                    conferenceData.setReceiveTime(ap.getDateTimeReceived());
                     //插入会议主题
-                    conferenceData.setTitle(ap.getSubject());                //会议主题
+                    conferenceData.setTitle(ap.getSubject());
                     //去除html框架，获取body中的文本内容
                     String html_body = ap.getBody().toString();
                     String body = HtmlUtil.getContentFromHtml(html_body);

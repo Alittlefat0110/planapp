@@ -47,14 +47,29 @@ public class EmailConfig implements Serializable {
     private String password;
 
     /**
+     * 部门
+     */
+    private String department;
+
+    /**
+     * 岗位
+     */
+    private String station;
+
+    /**
      * 邮箱同步开始时间
      */
     private Timestamp startTime;
 
     /**
-     * 邮箱同步过滤关键词
+     * 过滤关键词/角色标签
      */
-    private String keyWord;
+    private String keyWordS;
+
+    /**
+     * 过滤关键词/通用标签
+     */
+    private String keyWordT;
 
     /**
      * 过滤邮箱
@@ -68,12 +83,12 @@ public class EmailConfig implements Serializable {
     /**
      * 创建时间
      */
-    private Timestamp createtime;
+    private Timestamp createTime;
 
     /**
      * 更新时间
      */
-    private Timestamp updatetime;
+    private Timestamp updateTime;
 
     /**
      * 状态

@@ -6,12 +6,9 @@ import com.schedule.getmail.contentSimilarity.similarity.text.CosineSimilarity;
 import com.schedule.getmail.contentSimilarity.similarity.text.TextSimilarity;
 import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
 import com.schedule.getmail.contentSimilarity.tokenizer.Word;
-import com.schedule.getmail.mapper.DailyPlanAddBySelfMapper;
-import com.schedule.getmail.mapper.GetMailMapper;
 import com.schedule.getmail.service.DailyPlanConfigBySelfService;
 import com.schedule.getmail.util.HtmlUtil;
 import com.schedule.getmail.entity.ConferenceData;
-import com.schedule.getmail.entity.EmailData;
 import com.schedule.getmail.entity.PlanData;
 import com.schedule.getmail.entity.TitleFrequency;
 import microsoft.exchange.webservices.data.core.ExchangeService;
@@ -62,12 +59,9 @@ import java.util.*;
 @EnableScheduling
 @SpringBootTest
 class GetmailApplicationTests {
-	EmailData emailData = new EmailData();
 	HtmlUtil a;
 	@Resource
-	private GetMailMapper getMailMapper;
 //	private GetMailService getMailService;
-	private DailyPlanAddBySelfMapper dailyPlanAddBySelfMapper;
 	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
 
 
@@ -85,45 +79,45 @@ class GetmailApplicationTests {
 //			System.out.println(l.get(i));
 //		}
 //	}
-
-	@Test
-	//@Scheduled(cron = "0/3 * * * * ?")
-	public void makepemail() throws Exception {
-
-		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); //设置TLS版本
-		//使用exchange服务工具类创建服务
-		//ExchangeMailUtil exchangeMailUtil = new ExchangeMailUtil(mailServer, user, password, readUrlPrefix);
-		//ExchangeService service = exchangeMailUtil.getExchangeService();
-		//创建exchange服务 ExchangeVersion.Exchange2010_SP1    (服务版本号)
-		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
-		ExchangeCredentials credentials = new WebCredentials("xgwfat@outlook.com", "giyoyo9420", "outlook.com");
-		service.setCredentials(credentials);
-		service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
-		// Bind to the Inbox.
-		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
-		System.out.println(inbox.getDisplayName());
-		ItemView itemView = new ItemView(10);
-		itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
-
-		// 查询，插入数据
-		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
-		ArrayList<Item> items = findResults.getItems();
-		List<EmailData> list = new ArrayList<>();
-		for (int i = 0; i < items.size(); i++) {
-			EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
-			message.load();
-            //发件人
-            System.out.println(message.getSender());
-			//主题
-			System.out.println(items.get(i).getSubject());
-			//内容
-            String body = a.getContentFromHtml(message.getBody().toString());
-            System.out.println(body);
-            //发件人
-
-		}
-
-	}
+//
+//	@Test
+//	//@Scheduled(cron = "0/3 * * * * ?")
+//	public void makepemail() throws Exception {
+//
+//		System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); //设置TLS版本
+//		//使用exchange服务工具类创建服务
+//		//ExchangeMailUtil exchangeMailUtil = new ExchangeMailUtil(mailServer, user, password, readUrlPrefix);
+//		//ExchangeService service = exchangeMailUtil.getExchangeService();
+//		//创建exchange服务 ExchangeVersion.Exchange2010_SP1    (服务版本号)
+//		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
+//		ExchangeCredentials credentials = new WebCredentials("xgwfat@outlook.com", "giyoyo9420", "outlook.com");
+//		service.setCredentials(credentials);
+//		service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
+//		// Bind to the Inbox.
+//		Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
+//		System.out.println(inbox.getDisplayName());
+//		ItemView itemView = new ItemView(10);
+//		itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);//按时间获取
+//
+//		// 查询，插入数据
+//		FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
+//		ArrayList<Item> items = findResults.getItems();
+//
+//		for (int i = 0; i < items.size(); i++) {
+//			EmailMessage message = EmailMessage.bind(service, items.get(i).getId());
+//			message.load();
+//            //发件人
+//            System.out.println(message.getSender());
+//			//主题
+//			System.out.println(message.getReceivedBy());
+//			//内容
+//            String body = a.getContentFromHtml(message.getBody().toString());
+//            System.out.println(body);
+//            //发件人
+//
+//		}
+//
+//	}
 
 
 //	@Test

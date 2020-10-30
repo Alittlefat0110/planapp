@@ -42,6 +42,12 @@ public class ConferenceData implements Serializable {
     private String sender;
 
     /**
+     * 收件人
+     */
+    private String receiver;
+
+
+    /**
      * 接收时间
      */
     private Date receiveTime;
