@@ -151,7 +151,7 @@ public class PlanDataController {
     @ApiOperation(value = "删除日程接口", notes="删除日程接口")
     @PostMapping(value = "/dailyPlan/delete", produces = "application/json;charset=utf-8")
     public DeleteDailyPlanReponse dailyPlanDeleteById(@RequestBody DeleteDailyPlanRequest request ){
-        DeleteDailyPlanReponse response=new  DeleteDailyPlanReponse();
+        DeleteDailyPlanReponse response = new  DeleteDailyPlanReponse();
         try {
             planDataService.remove(new QueryWrapper<PlanData>().lambda()
                     .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
@@ -159,6 +159,30 @@ public class PlanDataController {
                     .orderByDesc(PlanData::getStartTime));
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
+    }
+
+    /**
+     * 根据热词查询所有和热词相关
+     * @return
+     */
+    @ApiOperation(value = "根据热词查询日程接口", notes="根据热词查询日程接口")
+    @PostMapping(value = "/DailyPlan/getByHottestWord",produces ="application/json;charset=utf-8" )
+    public SelectPlanDataResponse SelectByHotWord(@RequestBody SelectPlanDataByHotWordRequest request){
+        SelectPlanDataResponse response = new SelectPlanDataResponse();
+        try{
+            List<PlanData> list=planDataService.list(new QueryWrapper<PlanData>().lambda()
+                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
+                    .like(!StringUtils.isEmpty(request.getHotWords()), PlanData::getTitle, request.getHotWords())
+                    .groupBy(PlanData::getSender)
+                    .orderByDesc(PlanData::getStartTime));
+            response.setData(list);
+            response.setErrorCode(ErrorCode.SUCCESS);
+            return response;
+        }catch (Exception e){
             log.error("",e);
             response.setErrorCode(ErrorCode.DB_ERROR);
         }

@@ -1,11 +1,20 @@
 package com.schedule.getmail.controller;
 
 
-import com.schedule.getmail.bean.response.GetHottestWordResponse;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.schedule.getmail.bean.response.SelectHottestWordResponse;
+import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.TitleFrequency;
+import com.schedule.getmail.service.ITitleFrequencyService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -18,42 +27,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TitleFrequencyController {
 
+    @Resource
+    private ITitleFrequencyService titleFrequencyService;
+
     /**
      * 获取前十热词
      * @return
      */
-    @PostMapping(value = "/DailyPlanTitle/getHottestWord",produces ="application/json;charset=utf-8" )
-    public GetHottestWordResponse getHotWord(){
-        GetHottestWordResponse response=new GetHottestWordResponse();
-//        try {
-//            String word=getMailService.getHotWord();
-//            response.setData(word);
-//            response.setErrorCode(ErrorCode.SUCCESS);
-//            return response;
-//        }catch (Exception e){
-//            log.error("",e);
-//            response.setErrorCode(ErrorCode.DB_ERROR);
-//        }
+    @ApiOperation(value = "查询前热词前10接口", notes="查询前热词前10接口")
+    @PostMapping(value = "/DailyPlanTitle/getHotWord",produces ="application/json;charset=utf-8" )
+    public SelectHottestWordResponse listHotWord(){
+        SelectHottestWordResponse response=new SelectHottestWordResponse();
+        List<TitleFrequency> list = titleFrequencyService.list(new QueryWrapper<TitleFrequency>().lambda()
+                .orderByDesc(TitleFrequency::getFrequency)
+                .last("limit 10")
+        );
         return response;
     }
 
-    /**
-     * 根据热词查询所有和热词相关
-     * @return
-     */
-//    @PostMapping(value = "/DailyPlan/SelectByHottestWord",produces ="application/json;charset=utf-8" )
-//    public SelectDailyPlanByHottestWordResponse SelectByHottestWord(){
-//        SelectDailyPlanByHottestWordResponse response=new SelectDailyPlanByHottestWordResponse();
-//        try{
-//            List<PlanData> list=getMailService.selectByTitle();
-//            response.setData(list);
-//            response.setErrorCode(ErrorCode.SUCCESS);
-//            return response;
-//        }catch (Exception e){
-//            log.error("",e);
-//            response.setErrorCode(ErrorCode.DB_ERROR);
-//        }
-//        return response;
-//    }
+
 
 }

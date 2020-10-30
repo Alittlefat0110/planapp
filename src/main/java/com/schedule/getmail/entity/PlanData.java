@@ -86,5 +86,10 @@ public class PlanData implements Serializable {
      */
     private String source;
 
+    /**
+     * 发件人
+     */
+    private String sender;
+
 
 }
