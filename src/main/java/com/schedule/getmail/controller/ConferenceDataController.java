@@ -1,6 +1,7 @@
 package com.schedule.getmail.controller;
 
 
+import com.schedule.getmail.bean.request.TransferConferenceDataRequest;
 import com.schedule.getmail.bean.response.AddEmailConfigResponse;
 import com.schedule.getmail.constant.ErrorCode;
 import com.schedule.getmail.service.IConferenceDataService;
@@ -21,7 +22,6 @@ import javax.annotation.Resource;
  * @since 2020-10-28
  */
 @RestController
-@RequestMapping("/conference-data")
 @Slf4j(topic = "getDataFromEmail")
 public class ConferenceDataController {
     @Resource
@@ -29,9 +29,24 @@ public class ConferenceDataController {
 
     //拉取邮箱数据
     @Scheduled(cron = "0 0/8 20 * * * ")
-    @PostMapping(value = "/emailData/getFromEmail", produces = "application/json;charset=utf-8")
-    public AddEmailConfigResponse insertMail(){
-        AddEmailConfigResponse response=new AddEmailConfigResponse();
+    @PostMapping(value = "/conferenceData/transferEmail", produces = "application/json;charset=utf-8")
+    public TransferConferenceDataRequest transferEmail(){
+        TransferConferenceDataRequest response=new TransferConferenceDataRequest();
+        try {
+            iConferenceDataService.transferEmail();
+            response.setErrorCode(ErrorCode.SUCCESS);
+        }catch(Exception e){
+            log.error("",e);
+            response.setErrorCode(ErrorCode.DB_ERROR);
+        }
+        return response;
+    }
+
+    //拉取会议数据
+    @Scheduled(cron = "0 0/8 20 * * * ")
+    @PostMapping(value = "/conferenceData/transferConference", produces = "application/json;charset=utf-8")
+    public TransferConferenceDataRequest transferConference(){
+        TransferConferenceDataRequest response=new TransferConferenceDataRequest();
         try {
             iConferenceDataService.transferEmail();
             response.setErrorCode(ErrorCode.SUCCESS);
