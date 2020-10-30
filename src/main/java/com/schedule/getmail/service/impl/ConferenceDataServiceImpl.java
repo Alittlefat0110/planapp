@@ -8,7 +8,6 @@ import cn.hutool.core.util.StrUtil;
 import com.schedule.getmail.entity.*;
 import com.schedule.getmail.mapper.ConferenceDataMapper;
 import com.schedule.getmail.mapper.EmailConfigMapper;
-import com.schedule.getmail.mapper.GetMailMapper;
 import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.util.CheckUtil;
 import com.schedule.getmail.util.DateUtil;
@@ -56,8 +55,7 @@ import java.util.List;
  */
 @Service
 public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper, ConferenceData> implements IConferenceDataService {
-    @Resource
-    private GetMailMapper getMailMapper;
+
     @Resource
     private ConferenceDataMapper conferenceDataMapper;
     @Resource
