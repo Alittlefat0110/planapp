@@ -1,4 +1,4 @@
-package com.schedule.getmail;
+//package com.schedule.getmail;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -43,27 +43,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.net.URI;
-import java.sql.Timestamp;
-import java.util.*;
-
-@RestController
-@Component
-@EnableScheduling
-@SpringBootTest
-class GetmailApplicationTests {
-	HtmlUtil a;
-	@Resource
-//	private GetMailService getMailService;
-	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
-
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.scheduling.annotation.EnableScheduling;
+//import org.springframework.stereotype.Component;
+//import org.springframework.web.bind.annotation.RestController;
+//
+//import javax.annotation.Resource;
+//import java.io.IOException;
+//import java.net.URI;
+//import java.sql.Timestamp;
+//import java.util.*;
+//
+//@RestController
+//@Component
+//@EnableScheduling
+//@SpringBootTest
+//class GetmailApplicationTests {
+//	HtmlUtil a;
+//	@Resource
+////	private GetMailService getMailService;
+//	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
+//
 
 
 //	@Test
@@ -596,4 +596,4 @@ class GetmailApplicationTests {
 //		}
 //		System.out.println(list2);
 //	}
-}
+//}

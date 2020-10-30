@@ -2,6 +2,8 @@ package com.schedule.getmail.util;
 
 /**
  * 剔除html的标签获取body的文本内容
+ * @Param content
+ * @return
  */
 
 public class HtmlUtil {

@@ -9,10 +9,7 @@ import com.schedule.getmail.entity.*;
 import com.schedule.getmail.mapper.ConferenceDataMapper;
 import com.schedule.getmail.mapper.EmailConfigMapper;
 import com.schedule.getmail.service.IConferenceDataService;
-import com.schedule.getmail.util.CheckUtil;
-import com.schedule.getmail.util.DateUtil;
-import com.schedule.getmail.util.HtmlUtil;
-import com.schedule.getmail.util.TokenUtil;
+import com.schedule.getmail.util.*;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
@@ -88,7 +85,8 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 emailConfig.setStartTime(new Timestamp(DateUtil.getFirstDay().getTime()));
             }
             //查询过滤关键词/邮箱
-            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWordS());
+            String keyWords =SplitUtil.splitString(emailConfig.getKeyWordS(),emailConfig.getKeyWordT());
+            String[] keyWordAll= TokenUtil.tokenString(keyWords);
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
             for (int j = 0; j < items.size(); j++) {
                 Item item = items.get(j);
@@ -100,7 +98,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 String sender = message.getSender().toString();
                 //todo 过滤 关键字，发件人
                 //判断邮件主题是否含有过滤关键词
-                boolean statusTitle = StrUtil.containsAny(subject, keyWords);
+                boolean statusTitle = StrUtil.containsAny(subject, keyWordAll);
                 //判断是否是黑名单邮箱
                 boolean statusSender=StrUtil.equalsAny(sender,keyEmails);
                 if (statusTitle||statusSender) {
@@ -184,7 +182,8 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 e.printStackTrace();
             }
             //查询过滤关键词/邮箱 todo
-            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWordS());
+            String keyWords =SplitUtil.splitString(emailConfig.getKeyWordS(),emailConfig.getKeyWordT());
+            String[] keyWordAll= TokenUtil.tokenString(keyWords);
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
 
             ArrayList<Appointment> appointmentItems = findResults==null?null:findResults.getItems();
@@ -202,7 +201,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 String sender =ap.getOrganizer().toString();
                 //todo 过滤关键字 发件人
                 //判断是否含有过滤关键字 todo
-                boolean statusTitle = StrUtil.containsAny(subject, keyWords);
+                boolean statusTitle = StrUtil.containsAny(subject, keyWordAll);
                 //判断是否为黑名单邮箱 todo
                 boolean statusSender=StrUtil.equalsAny(sender,keyEmails);
                 //若邮箱主题包含过滤关键词或发件人在黑名单中，则过滤该会议
@@ -217,7 +216,9 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                     //参加会议的员工
                     List<Attendee> RequiredAttendees = ap.getRequiredAttendees().getItems();
                     List<Attendee> OptionalAttendees = ap.getOptionalAttendees().getItems();
-                    conferenceData.setReceiver("");
+                    String receiver=SplitUtil.splitUtil(RequiredAttendees,OptionalAttendees);
+                    //插入会议员工（参与者）
+                    conferenceData.setReceiver(receiver);
                     //插入接收时间
                     conferenceData.setReceiveTime(ap.getDateTimeReceived());
                     //插入会议主题

@@ -3,7 +3,7 @@ package com.schedule.getmail.util;
 import java.util.StringTokenizer;
 
 /**
- * 拆分以英文半角逗号”,“间隔的过滤关键词/邮箱
+ * 拆分一个String类型的，以英文半角逗号”,“间隔的字符串
  * @Param str
  * @return
  */
