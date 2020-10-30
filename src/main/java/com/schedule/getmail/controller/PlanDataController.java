@@ -65,7 +65,7 @@ public class PlanDataController {
         SelectPlanDataResponse response=new SelectPlanDataResponse();
         try {
             List<PlanData> list = planDataService.list(new QueryWrapper<PlanData>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
+                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUserName, request.getUserName())
                     .eq(!StringUtils.isEmpty(request.getTime()), PlanData::getStartTime, request.getTime())
                     .orderByDesc(PlanData::getStartTime));
             response.setData(list);
@@ -154,7 +154,7 @@ public class PlanDataController {
         DeleteDailyPlanReponse response = new  DeleteDailyPlanReponse();
         try {
             planDataService.remove(new QueryWrapper<PlanData>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
+                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUserName, request.getUserName())
                     .eq(!StringUtils.isEmpty(request.getPlanId()), PlanData::getPlanId, request.getPlanId())
                     .orderByDesc(PlanData::getStartTime));
             response.setErrorCode(ErrorCode.SUCCESS);
@@ -175,7 +175,7 @@ public class PlanDataController {
         SelectPlanDataResponse response = new SelectPlanDataResponse();
         try{
             List<PlanData> list=planDataService.list(new QueryWrapper<PlanData>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUsername, request.getUserName())
+                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUserName, request.getUserName())
                     .like(!StringUtils.isEmpty(request.getHotWords()), PlanData::getTitle, request.getHotWords())
                     .groupBy(PlanData::getSender)
                     .orderByDesc(PlanData::getStartTime));

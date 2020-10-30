@@ -35,12 +35,12 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
         EmailConfig emailConfig1 = emailConfigMapper.selectOne(new QueryWrapper<EmailConfig>().lambda()
-                .eq(!StringUtils.isEmpty(username), EmailConfig::getUsername,username)
+                .eq(!StringUtils.isEmpty(username), EmailConfig::getUserName,username)
         );
         if(CheckUtil.isEmpty(emailConfig1)){
             EmailConfig emailConfig = new EmailConfig();
             //添加用户名
-            emailConfig.setUsername(request.getUserName());
+            emailConfig.setUserName(request.getUserName());
             //添加邮箱
             emailConfig.setEmail(request.getEmail());
             //添加密码
@@ -48,13 +48,13 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             //添加邮箱同步开始时间
             emailConfig.setStartTime(request.getStartTime());
             //添加过滤关键词
-            emailConfig.setKeyWord(request.getKeyWord());
+            emailConfig.setKeyWordS(request.getKeyWord());
             //添加过滤邮箱
             emailConfig.setKeyEmail(request.getKeyEmail());
             //创建时间
-            emailConfig.setCreatetime(time);
+            emailConfig.setCreateTime(time);
             //更新时间
-            emailConfig.setUpdatetime(time);
+            emailConfig.setUpdateTime(time);
             //密码加密方式
             emailConfig.setEncrypt("1");
             //状态
@@ -68,11 +68,11 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             //添加邮箱同步开始时间
             emailConfig1.setStartTime(request.getStartTime());
             //添加过滤关键词
-            emailConfig1.setKeyWord(request.getKeyWord());
+            emailConfig1.setKeyWordS(request.getKeyWord());
             //添加过滤邮箱
             emailConfig1.setKeyEmail(request.getKeyEmail());
             //更新时间
-            emailConfig1.setUpdatetime(time);
+            emailConfig1.setUpdateTime(time);
             //密码加密方式
             emailConfig1.setEncrypt("1");
             //状态

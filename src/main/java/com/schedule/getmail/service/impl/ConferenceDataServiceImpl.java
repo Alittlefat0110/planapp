@@ -88,7 +88,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 emailConfig.setStartTime(new Timestamp(DateUtil.getFirstDay().getTime()));
             }
             //查询过滤关键词/邮箱
-            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWord());
+            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWordS());
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
             for (int j = 0; j < items.size(); j++) {
                 Item item = items.get(j);
@@ -184,7 +184,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 e.printStackTrace();
             }
             //查询过滤关键词/邮箱 todo
-            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWord());
+            String[] keyWords= TokenUtil.tokenString(emailConfig.getKeyWordS());
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
 
             ArrayList<Appointment> appointmentItems = findResults==null?null:findResults.getItems();

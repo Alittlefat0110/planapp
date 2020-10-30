@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 /**
@@ -33,7 +34,7 @@ public class EmailConfig implements Serializable {
     /**
      * 所属用户
      */
-    private String username;
+    private String userName;
 
     /**
      * 邮箱地址
@@ -58,7 +59,7 @@ public class EmailConfig implements Serializable {
     /**
      * 设置邮箱同步开始时间
      */
-    private LocalDateTime startTime;
+    private Timestamp startTime;
 
     /**
      * 过滤关键词/角色标签
@@ -83,12 +84,12 @@ public class EmailConfig implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createtime;
+    private Timestamp createTime;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatetime;
+    private Timestamp updateTime;
 
     /**
      * 是否只接收chinamoney邮件  1：是/ 0：不是

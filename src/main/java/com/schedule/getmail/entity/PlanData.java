@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -33,7 +35,7 @@ public class PlanData implements Serializable {
     /**
      * 所属用户
      */
-    private String username;
+    private String userName;
 
     /**
      * 发件人
@@ -63,12 +65,12 @@ public class PlanData implements Serializable {
     /**
      * 会议开始时间
      */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /**
      * 会议结束时间
      */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /**
      * 接收时间
@@ -78,12 +80,12 @@ public class PlanData implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private Timestamp createTime;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updateTime;
+    private Timestamp updateTime;
 
     /**
      * 数据来源 0：手动添加 1:邮件同步

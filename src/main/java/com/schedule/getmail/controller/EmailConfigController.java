@@ -79,7 +79,7 @@ public class EmailConfigController {
         SelectEmailConfigResponse response=new SelectEmailConfigResponse();
         try {
             EmailConfig emailConfig = emailConfigService.getOne(new QueryWrapper<EmailConfig>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getUserName()), EmailConfig::getUsername,request.getUserName())
+                    .eq(!StringUtils.isEmpty(request.getUserName()), EmailConfig::getUserName,request.getUserName())
             );
             emailConfig.setPassword(null);
             response.setData(emailConfig);

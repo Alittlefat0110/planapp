@@ -62,7 +62,7 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
         String last = format.format(ca.getTime());
         System.out.println("===============本月last day:"+last);
         return planDataMapper.selectList(new QueryWrapper<PlanData>().lambda()
-                .eq(!StringUtils.isEmpty(username), PlanData::getUsername,username)
+                .eq(!StringUtils.isEmpty(username), PlanData::getUserName,username)
                 .ne(PlanData::getSource,"Message")
                 .apply("date_format (starttime,'%Y-%m-%d') >= date_format('" + first + "','%Y-%m-%d')")
                 .apply("date_format (starttime,'%Y-%m-%d') <= date_format('" + last + "','%Y-%m-%d')")
