@@ -46,9 +46,10 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             //添加密码
             emailConfig.setPassword(request.getPassword());
             //添加邮箱同步开始时间
-            emailConfig.setStartTime(request.getStartTime());
+            emailConfig.setStartTime(Timestamp.valueOf(request.getStartTime()));
             //添加过滤关键词
-            emailConfig.setKeyWordS(request.getKeyWord());
+            emailConfig.setKeyWordS(request.getKeyWordS());
+            emailConfig.setKeyWordT(request.getKeyWordT());
             //添加过滤邮箱
             emailConfig.setKeyEmail(request.getKeyEmail());
             //创建时间
@@ -58,17 +59,20 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             //密码加密方式
             emailConfig.setEncrypt("1");
             //状态
-            emailConfig.setFlag("1");
+            emailConfig.setFlag(request.getFlag());
            flag =  emailConfigMapper.insert(emailConfig);
         }else {
             //添加邮箱
             emailConfig1.setEmail(request.getEmail());
             //添加密码
             emailConfig1.setPassword(request.getPassword());
+            //部门
+            emailConfig1.setDepartment(request.getDepartment());
             //添加邮箱同步开始时间
-            emailConfig1.setStartTime(request.getStartTime());
+            emailConfig1.setStartTime(Timestamp.valueOf(request.getStartTime()));
             //添加过滤关键词
-            emailConfig1.setKeyWordS(request.getKeyWord());
+            emailConfig1.setKeyWordS(request.getKeyWordS());
+            emailConfig1.setKeyWordT(request.getKeyWordT());
             //添加过滤邮箱
             emailConfig1.setKeyEmail(request.getKeyEmail());
             //更新时间
@@ -76,7 +80,7 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             //密码加密方式
             emailConfig1.setEncrypt("1");
             //状态
-            emailConfig1.setFlag("1");
+            emailConfig1.setFlag(request.getFlag());
             flag =  emailConfigMapper.updateById(emailConfig1);
         }
         return flag > 0;
