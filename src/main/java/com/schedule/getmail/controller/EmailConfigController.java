@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -34,7 +35,7 @@ import java.util.List;
  * @author StrTom
  * @since 2020-10-28
  */
-@Slf4j(topic = "emailConfig")
+@Slf4j(topic = "emailConfigLogger")
 @RestController
 public class EmailConfigController {
 
@@ -45,14 +46,13 @@ public class EmailConfigController {
     private IConferenceDataService conferenceDataService;
 
     /**
-     * todo 配置全部放入到这里
      * 绑定邮箱
      * @param request
      * @return
      */
     @ApiOperation(value = "绑定邮箱,时间设置,关键词、发件人过滤接口", notes="绑定邮箱,时间设置,关键词、发件人过滤接口")
     @PostMapping(value = "/emailConfig/saveOrUpdate", produces = "application/json;charset=utf-8")
-    public AddEmailConfigResponse insertOrUpdateMail(@RequestBody AddEmailConfigRequest request){
+    public AddEmailConfigResponse insertOrUpdateMail(@Validated @RequestBody AddEmailConfigRequest request){
         AddEmailConfigResponse response=new AddEmailConfigResponse();
         try {
             boolean flag = emailConfigService.saveOrUpdate(request);
@@ -97,7 +97,7 @@ public class EmailConfigController {
         SelectFromEmailResponse response=new SelectFromEmailResponse();
         try {
             List<ConferenceData> conferenceDataList = conferenceDataService.list(new QueryWrapper<ConferenceData>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getEmail()), ConferenceData::getSender,request.getEmail())
+                    .like(!StringUtils.isEmpty(request.getEmail()), ConferenceData::getReceiver,request.getEmail())
             );
             List<String> list = new ArrayList<>();
             for (ConferenceData c: conferenceDataList) {

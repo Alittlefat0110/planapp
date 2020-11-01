@@ -1,6 +1,8 @@
 package com.schedule.getmail.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -49,31 +51,37 @@ public class EmailConfig implements Serializable {
     /**
      * 部门
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String department;
 
     /**
      * 岗位
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String station;
 
     /**
      * 设置邮箱同步开始时间
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private Timestamp startTime;
 
     /**
      * 过滤关键词/角色标签
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String keyWordS;
 
     /**
      * 过滤关键词/通用标签
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String keyWordT;
 
     /**
      * 过滤邮箱
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String keyEmail;
 
     /**

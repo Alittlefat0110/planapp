@@ -1,69 +1,25 @@
-//package com.schedule.getmail;
+package com.schedule.getmail;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
-import com.schedule.getmail.contentSimilarity.similarity.text.CosineSimilarity;
-import com.schedule.getmail.contentSimilarity.similarity.text.TextSimilarity;
-import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
-import com.schedule.getmail.contentSimilarity.tokenizer.Word;
-import com.schedule.getmail.service.DailyPlanConfigBySelfService;
-import com.schedule.getmail.util.HtmlUtil;
-import com.schedule.getmail.entity.ConferenceData;
-import com.schedule.getmail.entity.PlanData;
-import com.schedule.getmail.entity.TitleFrequency;
-import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.PropertySet;
-import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
-import microsoft.exchange.webservices.data.core.enumeration.availability.MeetingAttendeeType;
-import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
-import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
-import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
-import microsoft.exchange.webservices.data.core.response.AttendeeAvailability;
-import microsoft.exchange.webservices.data.core.service.folder.CalendarFolder;
-import microsoft.exchange.webservices.data.core.service.folder.Folder;
-import microsoft.exchange.webservices.data.core.service.item.Appointment;
-import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
-import microsoft.exchange.webservices.data.core.service.item.Item;
-import microsoft.exchange.webservices.data.core.service.schema.AppointmentSchema;
-import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
-import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-import microsoft.exchange.webservices.data.credential.WebCredentials;
-import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
-import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
-import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
-import microsoft.exchange.webservices.data.property.complex.Attendee;
-import microsoft.exchange.webservices.data.property.complex.FolderId;
-import microsoft.exchange.webservices.data.property.complex.Mailbox;
-import microsoft.exchange.webservices.data.property.complex.availability.CalendarEvent;
-import microsoft.exchange.webservices.data.property.complex.availability.CalendarEventDetails;
-import microsoft.exchange.webservices.data.search.CalendarView;
-import microsoft.exchange.webservices.data.search.FindItemsResults;
-import microsoft.exchange.webservices.data.search.ItemView;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.joda.time.DateTime;
-import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.scheduling.annotation.EnableScheduling;
-//import org.springframework.stereotype.Component;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import javax.annotation.Resource;
-//import java.io.IOException;
-//import java.net.URI;
-//import java.sql.Timestamp;
-//import java.util.*;
-//
-//@RestController
-//@Component
-//@EnableScheduling
-//@SpringBootTest
-//class GetmailApplicationTests {
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@Component
+@EnableScheduling
+@SpringBootTest
+class GetmailApplicationTests {
+//	EmailData emailData = new EmailData();
 //	HtmlUtil a;
 //	@Resource
+//	private GetMailMapper getMailMapper;
 ////	private GetMailService getMailService;
+//	private DailyPlanAddBySelfMapper dailyPlanAddBySelfMapper;
 //	private DailyPlanConfigBySelfService dailyPlanConfigBySelfService;
-//
+
 
 
 //	@Test
@@ -596,4 +552,4 @@ import org.junit.jupiter.api.Test;
 //		}
 //		System.out.println(list2);
 //	}
-//}
+}

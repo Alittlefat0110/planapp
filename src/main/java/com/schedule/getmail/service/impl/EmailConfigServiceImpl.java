@@ -8,6 +8,8 @@ import com.schedule.getmail.entity.EmailConfig;
 import com.schedule.getmail.mapper.EmailConfigMapper;
 import com.schedule.getmail.service.IEmailConfigService;
 import com.schedule.getmail.util.CheckUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +24,7 @@ import java.sql.Timestamp;
  * @since 2020-10-28
  */
 @Service
+@Slf4j(topic = "emailConfigLogger")
 public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, EmailConfig> implements IEmailConfigService {
 
     @Resource
@@ -29,6 +32,7 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
 
     @Override
     public boolean saveOrUpdate(AddEmailConfigRequest request) {
+        log.info("emailConfig saveOrUpdate start! {}",request);
         int flag  = 0;
         //根据userName判断是否已经绑定
         String username = request.getUserName();
@@ -37,52 +41,43 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
         EmailConfig emailConfig1 = emailConfigMapper.selectOne(new QueryWrapper<EmailConfig>().lambda()
                 .eq(!StringUtils.isEmpty(username), EmailConfig::getUserName,username)
         );
+        log.info("emailConfigMapper.selectOne {} , request.getUserName {} ",emailConfig1,username);
         if(CheckUtil.isEmpty(emailConfig1)){
             EmailConfig emailConfig = new EmailConfig();
-            //添加用户名
-            emailConfig.setUserName(request.getUserName());
-            //添加邮箱
-            emailConfig.setEmail(request.getEmail());
-            //添加密码
-            emailConfig.setPassword(request.getPassword());
+            BeanUtils.copyProperties(request,emailConfig);
             //添加邮箱同步开始时间
-            emailConfig.setStartTime(Timestamp.valueOf(request.getStartTime()));
-            //添加过滤关键词
-            emailConfig.setKeyWordS(request.getKeyWordS());
-            emailConfig.setKeyWordT(request.getKeyWordT());
-            //添加过滤邮箱
-            emailConfig.setKeyEmail(request.getKeyEmail());
+            String startTime = request.getStartTime();
+            Timestamp startTimeTimestamp = null;
+            if(!CheckUtil.isEmpty(startTime)){
+                startTimeTimestamp = Timestamp.valueOf(request.getStartTime());
+            }
+            emailConfig.setStartTime(startTimeTimestamp);
             //创建时间
             emailConfig.setCreateTime(time);
             //更新时间
             emailConfig.setUpdateTime(time);
             //密码加密方式
             emailConfig.setEncrypt("1");
-            //状态
-            emailConfig.setFlag(request.getFlag());
-           flag =  emailConfigMapper.insert(emailConfig);
+            flag =  emailConfigMapper.insert(emailConfig);
+            log.info("emailConfigMapper.insert  {} ",flag);
         }else {
-            //添加邮箱
-            emailConfig1.setEmail(request.getEmail());
-            //添加密码
-            emailConfig1.setPassword(request.getPassword());
-            //部门
-            emailConfig1.setDepartment(request.getDepartment());
             //添加邮箱同步开始时间
-            emailConfig1.setStartTime(Timestamp.valueOf(request.getStartTime()));
+            String startTime = request.getStartTime();
+            Timestamp startTimeTimestamp = null;
+            if(!CheckUtil.isEmpty(startTime)){
+                startTimeTimestamp = Timestamp.valueOf(request.getStartTime());
+            }
+            emailConfig1.setStartTime(startTimeTimestamp);
             //添加过滤关键词
-            emailConfig1.setKeyWordS(request.getKeyWordS());
-            emailConfig1.setKeyWordT(request.getKeyWordT());
-            //添加过滤邮箱
-            emailConfig1.setKeyEmail(request.getKeyEmail());
+            BeanUtils.copyProperties(request,emailConfig1);
             //更新时间
             emailConfig1.setUpdateTime(time);
             //密码加密方式
             emailConfig1.setEncrypt("1");
-            //状态
-            emailConfig1.setFlag(request.getFlag());
             flag =  emailConfigMapper.updateById(emailConfig1);
+            log.info("emailConfigMapper.updateById  {} ",flag);
         }
+        log.info("emailConfig saveOrUpdate end! {}",flag>0);
         return flag > 0;
     }
 }
