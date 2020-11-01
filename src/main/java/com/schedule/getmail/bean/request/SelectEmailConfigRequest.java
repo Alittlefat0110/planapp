@@ -13,7 +13,7 @@ public class SelectEmailConfigRequest {
      /**
       * 所属用户
       */
-     @ApiModelProperty("用户登录名")
-     @NotBlank(message = "用户登录名不能为空")
+     @ApiModelProperty("用户名")
+     @NotBlank(message = "用户名不能为空")
      String userName;
 }

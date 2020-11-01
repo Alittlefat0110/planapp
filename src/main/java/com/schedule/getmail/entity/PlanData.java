@@ -1,6 +1,8 @@
 package com.schedule.getmail.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,11 +42,13 @@ public class PlanData implements Serializable {
     /**
      * 发件人
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String sender;
 
     /**
      * 收件人
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String receiver;
 
     /**
@@ -55,26 +59,31 @@ public class PlanData implements Serializable {
     /**
      * 详情
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String content;
 
     /**
      * 会议位置
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private String position;
 
     /**
      * 会议开始时间
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private Date startTime;
 
     /**
      * 会议结束时间
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private Date endTime;
 
     /**
      * 接收时间
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private Date receiveTime;
 
     /**
@@ -85,6 +94,7 @@ public class PlanData implements Serializable {
     /**
      * 更新时间
      */
+    @TableField(strategy = FieldStrategy.IGNORED)
     private Timestamp updateTime;
 
     /**

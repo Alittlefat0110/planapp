@@ -1,9 +1,13 @@
 package com.schedule.getmail.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
+    private final static String FULL_DATE = "yyyy-MM-dd HH:mm:ss";
+    private final static String DATE_NO_S = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 获取当年第一天的时间
@@ -19,4 +23,24 @@ public class DateUtil {
         Date currYearFirst = calendar.getTime();
         return currYearFirst;
     }
+
+    /**
+     * <p class="detail">
+     * 以完整格式转换到日期 yyyy-MM-dd HH:mm:ss
+     * </p>
+     * @param date	日期字符串
+     * @return		完整格式日期对象
+     */
+    public static Date fullParse(String date) {
+        if(CheckUtil.isEmpty(date)){
+            return null;
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat(FULL_DATE);
+        try {
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            return new Date();
+        }
+    }
+
 }

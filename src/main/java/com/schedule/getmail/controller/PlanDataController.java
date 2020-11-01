@@ -25,7 +25,7 @@ import java.util.List;
  * @author StrTom
  * @since 2020-10-28
  */
-@Slf4j(topic = "planData")
+@Slf4j(topic = "planDataLogger")
 @RestController
 public class PlanDataController {
 
@@ -66,7 +66,7 @@ public class PlanDataController {
         try {
             List<PlanData> list = planDataService.list(new QueryWrapper<PlanData>().lambda()
                     .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUserName, request.getUserName())
-                    .eq(!StringUtils.isEmpty(request.getTime()), PlanData::getStartTime, request.getTime())
+                    .apply("date_format (start_Time,'%Y-%m-%d') = date_format('" + request.getTime() + "','%Y-%m-%d')")
                     .orderByDesc(PlanData::getStartTime));
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
@@ -170,8 +170,8 @@ public class PlanDataController {
      * @return
      */
     @ApiOperation(value = "根据热词查询日程接口", notes="根据热词查询日程接口")
-    @PostMapping(value = "/DailyPlan/getByHottestWord",produces ="application/json;charset=utf-8" )
-    public SelectPlanDataResponse SelectByHotWord(@RequestBody SelectPlanDataByHotWordRequest request){
+    @PostMapping(value = "/dailyPlan/getByHotWords",produces ="application/json;charset=utf-8" )
+    public SelectPlanDataResponse SelectByHotWords(@RequestBody SelectPlanDataByHotWordRequest request){
         SelectPlanDataResponse response = new SelectPlanDataResponse();
         try{
             List<PlanData> list=planDataService.list(new QueryWrapper<PlanData>().lambda()
