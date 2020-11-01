@@ -49,16 +49,21 @@ public class SplitUtil {
      * @Param
      */
     public static String splitString(String str1, String str2){
-        String Str = "";
-        String [] arr = {str1,str2};
-
-                for (int i = 0; i < arr.length; i++) {
-                    Str += arr[i];
-                    if (i != arr.length - 1) {
-                        Str += ",";
-                    }
+        String str = "";
+        if(CheckUtil.isEmpty(str1) && !CheckUtil.isEmpty(str2)){
+            str = str2;
+        }
+        else if(CheckUtil.isEmpty(str2) && !CheckUtil.isEmpty(str1)){
+            str = str1;
+        }else {
+            String [] arr = {str1,str2};
+            for (int i = 0; i < arr.length; i++) {
+                str += arr[i];
+                if (i != arr.length - 1) {
+                    str += ",";
                 }
-
-        return Str;
+            }
+        }
+        return str;
     }
 }

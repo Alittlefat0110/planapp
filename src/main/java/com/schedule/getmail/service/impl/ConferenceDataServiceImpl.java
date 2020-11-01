@@ -95,6 +95,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 emailConfig.setStartTime(new Timestamp(DateUtil.getFirstDay().getTime()));
             }
             //查询过滤关键词/邮箱
+
             String keyWords =SplitUtil.splitString(emailConfig.getKeyWordS(),emailConfig.getKeyWordT());
             String[] keyWordAll= TokenUtil.tokenString(keyWords);
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
@@ -112,6 +113,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 boolean statusTitle = StrUtil.containsAny(subject, keyWordAll);
                 //判断是否是黑名单邮箱
                 boolean statusSender=StrUtil.equalsAny(sender,keyEmails);
+                //若主题中含有过滤关键词，或者发件人为黑名单邮箱则跳过
                 if (statusTitle||statusSender) {
                     continue;
                 }
@@ -119,7 +121,9 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 if(item.getXmlElementName().equals("MeetingRequest")){
                     continue;
                 }
+                //获取邮件接收时间
                 Date compareTime = item.getDateTimeReceived();
+                //若设置的时间大于（晚于）该邮件接收时间则跳过
                 if(new Date(emailConfig.getStartTime().getTime()).compareTo(compareTime) >=0){
                     continue;
                 }

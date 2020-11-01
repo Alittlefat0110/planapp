@@ -13,9 +13,12 @@ public class TokenUtil {
         StringTokenizer token = new StringTokenizer(str,",");
         String [] result = new String[token.countTokens()];
         int i=0;
-        while(token.hasMoreTokens())
-        {
-            result[i++]=token.nextToken();
+        if(CheckUtil.isEmpty(str)){
+            result= new String[]{""};
+        }else {
+            while (token.hasMoreTokens()) {
+                result[i++] = token.nextToken();
+            }
         }
         return result;
     }
