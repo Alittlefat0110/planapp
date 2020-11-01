@@ -75,7 +75,7 @@ public class PlanData implements Serializable {
     /**
      * 接收时间
      */
-    private LocalDateTime receiveTime;
+    private Date receiveTime;
 
     /**
      * 创建时间

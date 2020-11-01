@@ -28,7 +28,7 @@ public class ConferenceDataController {
     private IConferenceDataService iConferenceDataService;
 
     //拉取邮箱数据
-    @Scheduled(cron = "0 0/8 20 * * * ")
+    @Scheduled(cron = "0 37 15 * * * ")
     @PostMapping(value = "/conferenceData/transferEmail", produces = "application/json;charset=utf-8")
     public TransferConferenceDataRequest transferEmail(){
         TransferConferenceDataRequest response=new TransferConferenceDataRequest();
@@ -43,12 +43,12 @@ public class ConferenceDataController {
     }
 
     //拉取会议数据
-    @Scheduled(cron = "0 0/8 20 * * * ")
+    @Scheduled(cron = "0 37 15 * * * ")
     @PostMapping(value = "/conferenceData/transferConference", produces = "application/json;charset=utf-8")
     public TransferConferenceDataRequest transferConference(){
         TransferConferenceDataRequest response=new TransferConferenceDataRequest();
         try {
-            iConferenceDataService.transferEmail();
+            iConferenceDataService.transferConference();
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);

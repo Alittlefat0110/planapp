@@ -1,6 +1,7 @@
 package com.schedule.getmail.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.getmail.bean.request.AddEmailConfigRequest;
 import com.schedule.getmail.entity.TitleFrequency;
 
 /**
@@ -12,5 +13,5 @@ import com.schedule.getmail.entity.TitleFrequency;
  * @since 2020-10-28
  */
 public interface ITitleFrequencyService extends IService<TitleFrequency> {
-
+    void saveOrUpdate();
 }

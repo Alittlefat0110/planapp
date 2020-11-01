@@ -50,13 +50,15 @@ public class SplitUtil {
      */
     public static String splitString(String str1, String str2){
         String Str = "";
-        String [] arr = {str1.toString(),str2.toString()};
-        for (int i=0; i < arr.length; i++){
-            Str += arr[i];
-            if(i != arr.length -1){
-                Str += ",";
-            }
-        }
+        String [] arr = {str1,str2};
+
+                for (int i = 0; i < arr.length; i++) {
+                    Str += arr[i];
+                    if (i != arr.length - 1) {
+                        Str += ",";
+                    }
+                }
+
         return Str;
     }
 }

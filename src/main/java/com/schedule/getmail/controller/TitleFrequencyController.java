@@ -42,6 +42,7 @@ public class TitleFrequencyController {
                 .orderByDesc(TitleFrequency::getFrequency)
                 .last("limit 10")
         );
+        response.setData(list);
         return response;
     }
 

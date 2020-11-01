@@ -5,9 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
+import com.schedule.getmail.contentSimilarity.tokenizer.Word;
 import com.schedule.getmail.entity.*;
 import com.schedule.getmail.mapper.ConferenceDataMapper;
 import com.schedule.getmail.mapper.EmailConfigMapper;
+import com.schedule.getmail.mapper.PlanDataMapper;
+import com.schedule.getmail.mapper.TitleFrequencyMapper;
 import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.util.*;
 import microsoft.exchange.webservices.data.core.ExchangeService;
@@ -29,6 +33,7 @@ import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,6 +60,10 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
     private ConferenceDataMapper conferenceDataMapper;
     @Resource
     private EmailConfigMapper emailConfigMapper;
+    @Resource
+    private PlanDataMapper planDataMapper;
+    @Resource
+    private TitleFrequencyMapper titleFrequencyMapper;
 
 
     /**
@@ -71,12 +80,13 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
         Timestamp time = new Timestamp(System.currentTimeMillis());
         for (int i = 0; i < configList.size(); i++) {
             EmailConfig emailConfig = configList.get(i);
+            System.out.println("userName"+emailConfig.getUserName());
             ExchangeCredentials credentials = new WebCredentials(emailConfig.getEmail(), emailConfig.getPassword(), "outlook.com");
             service.setCredentials(credentials);
             service.setUrl(new URI("https://s.outlook.com/EWS/Exchange.asmx"));
             Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
             System.out.println(inbox.getDisplayName());
-            ItemView itemView = new ItemView(10000);
+            ItemView itemView = new ItemView(30);
             //按时间获取
             itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);
             FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
@@ -90,6 +100,7 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
             for (int j = 0; j < items.size(); j++) {
                 Item item = items.get(j);
+                System.out.println("邮件主题"+item.getSubject());
                 EmailMessage message = EmailMessage.bind(service, item.getId());
                 message.load();
                 //获取邮件主题
@@ -113,7 +124,8 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                     continue;
                 }
                 ConferenceData cd =  conferenceDataMapper.selectOne(new QueryWrapper<ConferenceData>().lambda()
-                        .eq(!StringUtils.isEmpty(item.getId().toString()), ConferenceData::getCalendarId,item.getId().toString()));
+                        .eq(!StringUtils.isEmpty(item.getId().toString()), ConferenceData::getCalendarId,item.getId().toString())
+                );
                 if(!CheckUtil.isEmpty(cd)){
                     continue;
                 }
@@ -122,13 +134,13 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 //1.插入参考ID
                 conferenceData.setCalendarId(item.getId().toString());
                 //2.插入发件人
-                conferenceData.setSender(message.getSender().toString());
+                conferenceData.setSender(sender);
                 //3.插入收件人
-                conferenceData.setReceiver(message.getReceivedBy().toString());
+                conferenceData.setReceiver(emailConfig.getEmail());
                 //3.插入收件时间
                 conferenceData.setReceiveTime(item.getDateTimeReceived());
                 //4.插入主题
-                conferenceData.setTitle(item.getSubject());
+                conferenceData.setTitle(subject);
                 //获取html文档中body的文本内容（邮件内容）
                 String html_body = message.getBody().toString();
                 String body = HtmlUtil.getContentFromHtml(html_body);
@@ -138,7 +150,36 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 conferenceData.setCreateTime(time);
                 //7.插入邮件类型
                 conferenceData.setType(item.getXmlElementName());
+                //8.插入用户名
+                conferenceData.setUserName(emailConfig.getUserName());
                 conferenceDataMapper.insert(conferenceData);
+                System.out.println("-----------------insert conferenceData"+subject);
+                PlanData planData = new PlanData();
+                BeanUtils.copyProperties(conferenceData,planData);
+                planData.setSource("1");
+                planDataMapper.insert(planData);
+                System.out.println("-----------------insert planData"+subject);
+                //1.根据title分词得到分词list
+                List<Word> seg = Tokenizer.segment(conferenceData.getTitle());
+                //2.根据分好的词查库
+                for (Word w: seg) {
+                    if("n".equals(w.getPos())){
+                        TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
+                                .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
+                        );
+                        if(CheckUtil.isEmpty(titleFrequency)){
+                            TitleFrequency t = new TitleFrequency();
+                            t.setWords(w.getName());
+                            t.setFrequency(1);
+                            titleFrequencyMapper.insert(t);
+                            System.out.println("-----------------insert titleFrequency"+subject);
+                        }else {
+                            titleFrequency.setFrequency(titleFrequency.getFrequency()+1);
+                            titleFrequencyMapper.updateById(titleFrequency);
+                            System.out.println("-----------------update titleFrequency"+subject);
+                        }
+                    }
+                }
             }
         }
     }
@@ -238,7 +279,34 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                     conferenceData.setCreateTime(time);
                     //插入类型
                     conferenceData.setType(ap.getXmlElementName());
+                    conferenceData.setUserName(emailConfig.getUserName());
                     conferenceDataMapper.insert(conferenceData);
+                    PlanData planData = new PlanData();
+                    BeanUtils.copyProperties(conferenceData,planData);
+                    planData.setSource("2");
+                    planDataMapper.insert(planData);
+                    System.out.println("-----------------insert planData"+subject);
+                    //1.根据title分词得到分词list
+                    List<Word> seg = Tokenizer.segment(conferenceData.getTitle());
+                    //2.根据分好的词查库
+                    for (Word w: seg) {
+                        if ("n".equals(w.getPos())) {
+                            TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
+                                    .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
+                            );
+                            if (CheckUtil.isEmpty(titleFrequency)) {
+                                TitleFrequency t = new TitleFrequency();
+                                t.setWords(w.getName());
+                                t.setFrequency(1);
+                                titleFrequencyMapper.insert(t);
+                                System.out.println("-----------------insert titleFrequency" + subject);
+                            } else {
+                                titleFrequency.setFrequency(titleFrequency.getFrequency() + 1);
+                                titleFrequencyMapper.updateById(titleFrequency);
+                                System.out.println("-----------------update titleFrequency" + subject);
+                            }
+                        }
+                    }
                 }
             }
         }

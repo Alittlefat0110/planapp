@@ -1,8 +1,11 @@
 package com.schedule.getmail.bean.response;
 
+import com.schedule.getmail.entity.TitleFrequency;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class SelectHottestWordResponse extends BaseResponse{
-    private String data;
+    private List<TitleFrequency> data;
 }
