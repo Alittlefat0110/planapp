@@ -89,12 +89,12 @@ public abstract class TextSimilarity implements ITextSimilarity {
         Map<String, AtomicInteger> frequency1 = getFrequency(words1);
         Map<String, AtomicInteger> frequency2 = getFrequency(words2);
         //输出词频统计信息
-
+/**
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("词频统计1：\n{}", getWordsFrequencyString(frequency1));
             LOGGER.debug("词频统计2：\n{}", getWordsFrequencyString(frequency2));
         }
-
+*/
         // 标注权重
         words1.parallelStream().forEach(word -> word.setWeight(frequency1.get(word.getName()).floatValue()));
         words2.parallelStream().forEach(word -> word.setWeight(frequency2.get(word.getName()).floatValue()));
@@ -151,7 +151,7 @@ public abstract class TextSimilarity implements ITextSimilarity {
             if (i.getWeight() != null) {
                 weightMap.put(i.getName(), i.getWeight());
             } else {
-                LOGGER.error("no word weight info:" + i.getName());
+                //LOGGER.error("no word weight info:" + i.getName());
             }
         });
         return weightMap;
