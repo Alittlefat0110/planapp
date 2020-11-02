@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.schedule.getmail.util.CheckUtil;
+import com.schedule.getmail.util.DateUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -101,6 +103,18 @@ public class PlanData implements Serializable {
      * 数据来源 0：手动添加 1:邮件同步
      */
     private String source;
+
+
+    @TableField(exist=false)
+    private String time;
+
+    public String getTime(){
+        if(!CheckUtil.isEmpty(startTime)){
+            return DateUtil.formatHHMMSS(startTime);
+        }
+        return "";
+    }
+
 
 
 }
