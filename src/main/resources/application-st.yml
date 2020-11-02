@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://rm-uf6s15miy23zdo3u335930.mysql.rds.aliyuncs.com:3306/workslice?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      username: workslice
+      password: t*A5UEJ!ejZ!8HHa
+      driver-class-name: com.mysql.cj.jdbc.Driver

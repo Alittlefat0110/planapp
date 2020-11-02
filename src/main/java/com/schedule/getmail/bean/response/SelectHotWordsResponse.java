@@ -6,6 +6,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SelectHottestWordResponse extends BaseResponse{
+public class SelectHotWordsResponse extends BaseResponse{
     private List<TitleFrequency> data;
 }

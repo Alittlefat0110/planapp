@@ -2,9 +2,7 @@ package com.schedule.getmail.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.schedule.getmail.bean.response.SelectHottestWordResponse;
-import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.bean.response.SelectHotWordsResponse;
 import com.schedule.getmail.entity.TitleFrequency;
 import com.schedule.getmail.service.ITitleFrequencyService;
 import io.swagger.annotations.ApiOperation;
@@ -35,9 +33,9 @@ public class TitleFrequencyController {
      * @return
      */
     @ApiOperation(value = "查询前热词前10接口", notes="查询前热词前10接口")
-    @PostMapping(value = "/DailyPlanTitle/getHotWord",produces ="application/json;charset=utf-8" )
-    public SelectHottestWordResponse listHotWord(){
-        SelectHottestWordResponse response=new SelectHottestWordResponse();
+    @PostMapping(value = "/dailyPlanTitle/getHotWord",produces ="application/json;charset=utf-8" )
+    public SelectHotWordsResponse listHotWord(){
+        SelectHotWordsResponse response=new SelectHotWordsResponse();
         List<TitleFrequency> list = titleFrequencyService.list(new QueryWrapper<TitleFrequency>().lambda()
                 .orderByDesc(TitleFrequency::getFrequency)
                 .last("limit 10")

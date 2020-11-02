@@ -1,6 +1,7 @@
 package com.schedule.getmail.controller;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.schedule.getmail.bean.request.AddEmailConfigRequest;
 import com.schedule.getmail.bean.request.SelectConferenceDataByToEmailRequest;
@@ -11,8 +12,10 @@ import com.schedule.getmail.bean.response.SelectFromEmailResponse;
 import com.schedule.getmail.constant.ErrorCode;
 import com.schedule.getmail.entity.ConferenceData;
 import com.schedule.getmail.entity.EmailConfig;
+import com.schedule.getmail.entity.vo.EmailConfigVo;
 import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.service.IEmailConfigService;
+import com.schedule.getmail.util.DateUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,14 +80,16 @@ public class EmailConfigController {
      */
     @ApiOperation(value = "查询绑定邮箱,时间设置,关键词、发件人过滤接口", notes="查询绑定邮箱,时间设置,关键词、发件人过滤接口")
     @PostMapping(value = "/emailConfig/getEmailConfig", produces = "application/json;charset=utf-8")
-    public SelectEmailConfigResponse mailSelect(@RequestBody SelectEmailConfigRequest request){
+    public SelectEmailConfigResponse mailSelect(@Validated @RequestBody SelectEmailConfigRequest request){
         SelectEmailConfigResponse response=new SelectEmailConfigResponse();
         try {
             EmailConfig emailConfig = emailConfigService.getOne(new QueryWrapper<EmailConfig>().lambda()
                     .eq(!StringUtils.isEmpty(request.getUserName()), EmailConfig::getUserName,request.getUserName())
             );
-//            emailConfig.setPassword(null);
-            response.setData(emailConfig);
+            EmailConfigVo emailConfigVo = new EmailConfigVo();
+            BeanUtil.copyProperties(emailConfig,emailConfigVo);
+            emailConfigVo.setStartTime(DateUtil.format(emailConfig.getStartTime()));
+            response.setData(emailConfigVo);
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);
@@ -93,7 +100,7 @@ public class EmailConfigController {
 
     @ApiOperation(value = "查询发件人邮箱接口", notes="查询发件人邮箱接口")
     @PostMapping(value = "/emailConfig/getFromEmail", produces = "application/json;charset=utf-8")
-    public SelectFromEmailResponse getFromEmail(@RequestBody SelectConferenceDataByToEmailRequest request){
+    public SelectFromEmailResponse getFromEmail(@Validated @RequestBody SelectConferenceDataByToEmailRequest request){
         SelectFromEmailResponse response=new SelectFromEmailResponse();
         try {
             List<ConferenceData> conferenceDataList = conferenceDataService.list(new QueryWrapper<ConferenceData>().lambda()
