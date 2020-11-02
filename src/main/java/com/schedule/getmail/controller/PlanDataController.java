@@ -7,9 +7,12 @@ import com.schedule.getmail.bean.request.*;
 import com.schedule.getmail.bean.response.*;
 import com.schedule.getmail.constant.ErrorCode;
 import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.vo.HotWordsPlanDataVo;
+import com.schedule.getmail.entity.vo.TimeAxisPlanDataVo;
 import com.schedule.getmail.service.IPlanDataService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -40,10 +43,10 @@ public class PlanDataController {
      */
     @ApiOperation(value = "时间轴接口", notes="时间轴接口")
     @PostMapping(value = "/dailyPlan/listByTimeRange", produces = "application/json;charset=utf-8")
-    public SelectPlanDataResponse selectByTimeRange (@RequestBody SelectDailyPlanByTimeRangeRequest request) {
-        SelectPlanDataResponse response=new SelectPlanDataResponse();
+    public SelectTimeAxisPlanDataResponse selectByTimeRange (@Validated @RequestBody SelectDailyPlanByTimeRangeRequest request) {
+        SelectTimeAxisPlanDataResponse response=new SelectTimeAxisPlanDataResponse();
         try {
-            List<PlanData> list=planDataService.selectByTimeRange(request.getUserName(),request.getPageIndex());
+            List<TimeAxisPlanDataVo> list=planDataService.selectByTimeRange(request.getUserName(),request.getPageIndex());
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
             return response;
@@ -61,7 +64,7 @@ public class PlanDataController {
      */
     @ApiOperation(value = "时间轴按天查询接口", notes="时间轴按天查询接口")
     @PostMapping(value = "/dailyPlan/getPlanDataByTime", produces = "application/json;charset=utf-8")
-    public SelectPlanDataResponse selectPlanDataByTime (@RequestBody SelectPlanDataByTimeRequest request) {
+    public SelectPlanDataResponse selectPlanDataByTime (@Validated @RequestBody SelectPlanDataByTimeRequest request) {
         SelectPlanDataResponse response=new SelectPlanDataResponse();
         try {
             List<PlanData> list = planDataService.list(new QueryWrapper<PlanData>().lambda()
@@ -85,7 +88,7 @@ public class PlanDataController {
      */
     @ApiOperation(value = "日历程接口", notes="日历程接口")
     @PostMapping(value = "/dailyPlan/listByMonthRange", produces = "application/json;charset=utf-8")
-    public SelectPlanDataResponse selectByMonthRange (@RequestBody SelectDailyPlanByMonthRangeRequest request) {
+    public SelectPlanDataResponse selectByMonthRange (@Validated @RequestBody SelectDailyPlanByMonthRangeRequest request) {
         SelectPlanDataResponse response=new SelectPlanDataResponse();
         try {
             List<PlanData> list=planDataService.selectByMonthRange(request.getUserName());
@@ -132,7 +135,7 @@ public class PlanDataController {
      */
     @ApiOperation(value = "手动添加、修改日程接口", notes="手动添加、修改日程接口")
     @PostMapping(value = "/dailyPlan/saveOrUpdate", produces = "application/json;charset=utf-8")
-    public AddDailyPlanResponse saveOrUpdate(@RequestBody AddDailyPlanRequest request){
+    public AddDailyPlanResponse saveOrUpdate(@Validated @RequestBody AddDailyPlanRequest request){
         AddDailyPlanResponse response=new AddDailyPlanResponse();
         boolean b = planDataService.saveOrUpdate(request);
         if(b){
@@ -150,7 +153,7 @@ public class PlanDataController {
      */
     @ApiOperation(value = "删除日程接口", notes="删除日程接口")
     @PostMapping(value = "/dailyPlan/delete", produces = "application/json;charset=utf-8")
-    public DeleteDailyPlanReponse dailyPlanDeleteById(@RequestBody DeleteDailyPlanRequest request ){
+    public DeleteDailyPlanReponse dailyPlanDeleteById(@Validated @RequestBody DeleteDailyPlanRequest request ){
         DeleteDailyPlanReponse response = new  DeleteDailyPlanReponse();
         try {
             planDataService.remove(new QueryWrapper<PlanData>().lambda()
@@ -171,14 +174,10 @@ public class PlanDataController {
      */
     @ApiOperation(value = "根据热词查询日程接口", notes="根据热词查询日程接口")
     @PostMapping(value = "/dailyPlan/getByHotWords",produces ="application/json;charset=utf-8" )
-    public SelectPlanDataResponse SelectByHotWords(@RequestBody SelectPlanDataByHotWordRequest request){
-        SelectPlanDataResponse response = new SelectPlanDataResponse();
+    public SelectPlanDataByHotWordsResponse selectByHotWords(@Validated @RequestBody SelectPlanDataByHotWordRequest request){
+        SelectPlanDataByHotWordsResponse response = new SelectPlanDataByHotWordsResponse();
         try{
-            List<PlanData> list=planDataService.list(new QueryWrapper<PlanData>().lambda()
-                    .eq(!StringUtils.isEmpty(request.getUserName()), PlanData::getUserName, request.getUserName())
-                    .like(!StringUtils.isEmpty(request.getHotWords()), PlanData::getTitle, request.getHotWords())
-                    .groupBy(PlanData::getSender)
-                    .orderByDesc(PlanData::getStartTime));
+            List<HotWordsPlanDataVo> list=planDataService.selectPlanDataByHotWords(request.getHotWords());
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);
             return response;

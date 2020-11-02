@@ -2,9 +2,11 @@ package com.schedule.getmail.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.vo.HotWordsVo;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,15 +17,15 @@ import java.util.List;
  * @author StrTom
  * @since 2020-10-28
  */
+@Mapper
 public interface PlanDataMapper extends BaseMapper<PlanData> {
 
     /**
-     * 查询当前周日程
-     * @param username
-     * @param startTime
-     * @param endTime
+     * 根据热词查询
+     * @param words
      * @return
      */
-    List<PlanData> selectByTimeRange(@Param("username")String username, @Param("startTime") Date startTime, @Param("endTime")Date endTime);
+    @Select("SELECT t.user_name, count( t.user_name ) AS titleCount  FROM plan_data t  WHERE t.title LIKE '%${words}%' GROUP BY t.user_name  ORDER BY titleCount DESC")
+    List<HotWordsVo> selectHotWordsByGroupByUserName(@Param("words")String words);
 
 }

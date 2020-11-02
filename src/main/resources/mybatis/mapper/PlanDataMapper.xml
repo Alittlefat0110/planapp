@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.schedule.getmail.mapper.PlanDataMapper">
-    <!--查询时间段内的数据-->
-    <select id="selectByTimeRange" resultMap="planDataMap" >
-        SELECT  title,content,position,starttime,endtime,plantime FROM
-        plan_data  main
-        WHERE main.starttime between #{startTime} and #{endTime}
-        and username = #{username}
-        ORDER  BY  main.starttime
-    </select>
 </mapper>

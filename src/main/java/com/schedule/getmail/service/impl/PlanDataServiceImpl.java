@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.schedule.getmail.bean.request.AddDailyPlanRequest;
 import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.vo.HotWordsVo;
+import com.schedule.getmail.entity.vo.HotWordsPlanDataVo;
+import com.schedule.getmail.entity.vo.TimeAxisPlanDataVo;
 import com.schedule.getmail.mapper.PlanDataMapper;
 import com.schedule.getmail.service.IPlanDataService;
 import com.schedule.getmail.util.CheckUtil;
@@ -18,6 +21,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -43,8 +47,10 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
      * @return
      */
     @Override
-    public List<PlanData> selectByTimeRange(String username, int pageIndex) {
+    public List<TimeAxisPlanDataVo> selectByTimeRange(String username, int pageIndex) {
         log.info("planData selectByTimeRange start! userName {},pageIndex {}",username,pageIndex);
+        // 返回的日期集合
+        List<String> days = new ArrayList<String>();
         //获取当前时间
         Date now= DateUtil.date();
         //当前时间对应的当前周（pageIndex=0）及偏移（pageIndex=-1：上一周 / pageIndex=1：下一周）
@@ -53,17 +59,36 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
         Date startTime=DateUtil.beginOfWeek(d);
         //所在周的结束时间，以星期天作为一周的最后一天
         Date endTime= DateUtil.endOfWeek(d,true);
-        //从日程表查询时间段内的日程数据
+        Calendar tempStart = Calendar.getInstance();
+        tempStart.setTime(startTime);
+        Calendar tempEnd = Calendar.getInstance();
+        tempEnd.setTime(endTime);
+        while (tempStart.before(tempEnd)) {
+            days.add(com.schedule.getmail.util.DateUtil.format(tempStart.getTime()));
+            tempStart.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        List<TimeAxisPlanDataVo> timeAxisPlanDataVos = new ArrayList<>();
+        for (String s:days) {
+            TimeAxisPlanDataVo timeAxisPlanData = new TimeAxisPlanDataVo();
+            List<PlanData> list = planDataMapper.selectList(new QueryWrapper<PlanData>().lambda()
+                    .eq(!StringUtils.isEmpty(username), PlanData::getUserName,username)
+                    .apply("date_format (start_Time,'%Y-%m-%d') = date_format('" + s + "','%Y-%m-%d')")
+                    .orderByAsc(PlanData::getStartTime)
+            );
+            timeAxisPlanData.setTime(s);
+            timeAxisPlanData.setData(list);
+            timeAxisPlanDataVos.add(timeAxisPlanData);
+        }
         log.info("planData selectByTimeRange startTime {},endTime {}",startTime,endTime);
 //        List<PlanData> list = planDataMapper.selectByTimeRange(username,startTime,endTime);
-        List<PlanData> list = planDataMapper.selectList(new QueryWrapper<PlanData>().lambda()
-                .eq(!StringUtils.isEmpty(username), PlanData::getUserName,username)
-                .apply("date_format (start_Time,'%Y-%m-%d') >= date_format('" + startTime + "','%Y-%m-%d')")
-                .apply("date_format (start_Time,'%Y-%m-%d') <= date_format('" + endTime + "','%Y-%m-%d')")
-                .orderByAsc(PlanData::getStartTime)
-        );
-        log.info("planData selectByTimeRange end! list.size {}",list.size());
-        return list;
+//        List<PlanData> list = planDataMapper.selectList(new QueryWrapper<PlanData>().lambda()
+//                .eq(!StringUtils.isEmpty(username), PlanData::getUserName,username)
+//                .apply("date_format (start_Time,'%Y-%m-%d') >= date_format('" + startTime + "','%Y-%m-%d')")
+//                .apply("date_format (start_Time,'%Y-%m-%d') <= date_format('" + endTime + "','%Y-%m-%d')")
+//                .orderByAsc(PlanData::getStartTime)
+//        );
+        log.info("planData selectByTimeRange end! list.size {}",timeAxisPlanDataVos.size());
+        return timeAxisPlanDataVos;
     }
 
     /**
@@ -130,5 +155,37 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
         }
         log.info("planData saveOrUpdate end! flag {}",flag>0);
         return flag > 0;
+    }
+
+    /**
+     * 根据热词查询
+     * @param words
+     * @return
+     */
+    @Override
+    public List<HotWordsPlanDataVo> selectPlanDataByHotWords(String words) {
+        log.info("planData selectPlanDataByHotWords start! words {}",words);
+        List<HotWordsPlanDataVo> list = new ArrayList<>();
+        List<HotWordsVo> wordsList = planDataMapper.selectHotWordsByGroupByUserName(words);
+        log.info("planData planDataMapper.selectHotWordsByGroupByUserName wordsList {}",wordsList);
+        //如根据热词没有查到数据直接返回
+        if(CheckUtil.isEmpty(wordsList)){
+            return list;
+        }
+        //根据热词以及userName查询日程
+        for (HotWordsVo h:wordsList ) {
+            HotWordsPlanDataVo hotWordsPlanData = new HotWordsPlanDataVo();
+            hotWordsPlanData.setUserName(h.getUserName());
+            hotWordsPlanData.setSum(h.getTitleCount());
+            List<PlanData> planData = planDataMapper.selectList(new QueryWrapper<PlanData>().lambda()
+                    .eq(PlanData::getUserName,h.getUserName())
+                    .like(PlanData::getTitle,words)
+                    .orderByDesc(PlanData::getStartTime)
+            );
+            hotWordsPlanData.setData(planData);
+            list.add(hotWordsPlanData);
+        }
+        log.info("planData selectPlanDataByHotWords end! list {}",list);
+        return list;
     }
 }

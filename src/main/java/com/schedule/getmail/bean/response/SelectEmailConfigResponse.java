@@ -1,6 +1,6 @@
 package com.schedule.getmail.bean.response;
 
-import com.schedule.getmail.entity.EmailConfig;
+import com.schedule.getmail.entity.vo.EmailConfigVo;
 import lombok.Data;
 
 /**
@@ -8,5 +8,5 @@ import lombok.Data;
  */
 @Data
 public class SelectEmailConfigResponse extends BaseResponse{
-    private EmailConfig data;
+    private EmailConfigVo data;
 }

@@ -3,6 +3,8 @@ package com.schedule.getmail.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.getmail.bean.request.AddDailyPlanRequest;
 import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.vo.HotWordsPlanDataVo;
+import com.schedule.getmail.entity.vo.TimeAxisPlanDataVo;
 
 import java.util.List;
 
@@ -22,7 +24,7 @@ public interface IPlanDataService extends IService<PlanData> {
      * @param pageIndex
      * @return
      */
-    List<PlanData> selectByTimeRange(String username, int pageIndex);
+    List<TimeAxisPlanDataVo> selectByTimeRange(String username, int pageIndex);
 
     /**
      *查询日历程
@@ -37,5 +39,12 @@ public interface IPlanDataService extends IService<PlanData> {
      * @return
      */
     boolean saveOrUpdate(AddDailyPlanRequest request);
+
+    /**
+     * 根据热词查询
+     * @param words
+     * @return
+     */
+    List<HotWordsPlanDataVo> selectPlanDataByHotWords(String words);
 
 }
