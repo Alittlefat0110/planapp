@@ -74,6 +74,9 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             emailConfig1.setUpdateTime(time);
             //密码加密方式
             emailConfig1.setEncrypt("1");
+            if(emailConfig1.getStartTime().getTime()!=startTimeTimestamp.getTime()){
+                emailConfig1.setNewStartTime(startTimeTimestamp);
+            }
             flag =  emailConfigMapper.updateById(emailConfig1);
             log.info("emailConfigMapper.updateById  {} ",flag);
         }

@@ -104,5 +104,9 @@ public class EmailConfig implements Serializable {
      */
     private String flag;
 
+    /**
+     * 最新起始时间
+     */
+    private Timestamp newStartTime;
 
 }

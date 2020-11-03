@@ -108,9 +108,19 @@ public class PlanData implements Serializable {
     @TableField(exist=false)
     private String time;
 
+    @TableField(exist=false)
+    private String week;
+
     public String getTime(){
         if(!CheckUtil.isEmpty(startTime)){
             return DateUtil.formatHHMMSS(startTime);
+        }
+        return "";
+    }
+
+    public String getWeek(){
+        if(!CheckUtil.isEmpty(startTime)){
+            return DateUtil.dateToWeek(startTime);
         }
         return "";
     }

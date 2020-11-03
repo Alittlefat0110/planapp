@@ -2,6 +2,9 @@ package com.schedule.getmail.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.getmail.entity.ConferenceData;
+import com.schedule.getmail.entity.EmailConfig;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,6 +16,6 @@ import com.schedule.getmail.entity.ConferenceData;
  */
 public interface IConferenceDataService extends IService<ConferenceData> {
     //从邮箱拉取会议信息到会议数据表
-    void transferEmail()  throws Exception;
-    void transferConference()  throws Exception;
+    void transferEmail(List<EmailConfig> list)  throws Exception;
+    void transferConference(List<EmailConfig> list)  throws Exception;
 }

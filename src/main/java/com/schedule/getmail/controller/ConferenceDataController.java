@@ -33,7 +33,7 @@ public class ConferenceDataController {
     public TransferConferenceDataRequest transferEmail(){
         TransferConferenceDataRequest response=new TransferConferenceDataRequest();
         try {
-            iConferenceDataService.transferEmail();
+            iConferenceDataService.transferEmail(null);
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);
@@ -48,7 +48,7 @@ public class ConferenceDataController {
     public TransferConferenceDataRequest transferConference(){
         TransferConferenceDataRequest response=new TransferConferenceDataRequest();
         try {
-            iConferenceDataService.transferConference();
+            iConferenceDataService.transferConference(null);
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
             log.error("",e);

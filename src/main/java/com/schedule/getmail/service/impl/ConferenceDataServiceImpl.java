@@ -35,6 +35,7 @@ import microsoft.exchange.webservices.data.property.complex.Mailbox;
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 import microsoft.exchange.webservices.data.search.ItemView;
+import microsoft.exchange.webservices.data.search.filter.SearchFilter;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -59,6 +61,12 @@ import java.util.List;
 @Service
 @Slf4j(topic = "ConferenceDataLogger")
 public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper, ConferenceData> implements IConferenceDataService {
+
+    private final String HTTPS_PROTOCOLS = "https.protocols";
+    private final String TLSV = "TLSv1,TLSv1.1,TLSv1.2,SSLv3";
+    private final String EXCHANGE = "https://s.outlook.com/EWS/Exchange.asmx";
+    private final String DOMAIN = "outlook.com";
+
 
     @Resource
     private ConferenceDataMapper conferenceDataMapper;
@@ -75,49 +83,41 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
      * @throws Exception
      */
     @Override
-    public  void transferEmail()  throws Exception {
+    public  void transferEmail(List<EmailConfig> list)  throws Exception {
         //设置TLS版本
-        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
+        System.setProperty(HTTPS_PROTOCOLS, TLSV);
         //设置exchange邮件管理系统版本
         ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
         //查询邮箱配置信息
-        List<EmailConfig> configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        List<EmailConfig> configList = new ArrayList<>();
+        if(CheckUtil.isEmpty(list)){
+            configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        }
         log.info("emailConfigMapper.selectList {} ",configList);
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
+        Date now= new Date();
         for (int i = 0; i < configList.size(); i++) {
             EmailConfig emailConfig = configList.get(i);
             log.info("configList.get(i) {} ",emailConfig);
-            //查询当前用户名对应的日程主题
-            List<PlanData> planDataList = planDataMapper.selectList(new QueryWrapper<PlanData>()
-            .eq("user_name" , emailConfig.getUserName())
-            );
-            log.info("planDataMapper.selectList {} ",planDataList);
-            double score1pkx=0;
-            //创建相似度分析方法对象
-            TextSimilarity similarity =new CosineSimilarity();
-            ExchangeCredentials credentials = new WebCredentials(emailConfig.getEmail(), emailConfig.getPassword(), "outlook.com");
+            ExchangeCredentials credentials = new WebCredentials(emailConfig.getEmail(), emailConfig.getPassword(), DOMAIN);
             log.info("WebCredentials {} ",credentials);
             service.setCredentials(credentials);
-            service.setUrl(new URI("https://s.outlook.com/EWS/Exchange.asmx"));
+            service.setUrl(new URI(EXCHANGE));
             Folder inbox = Folder.bind(service, WellKnownFolderName.Inbox);
-            //邮件所处文件夹（客户端）
-            String EmailBox=inbox.getDisplayName();
-            System.out.println(EmailBox+"ok");
-            log.info("inbox.getDisplayName {} ",EmailBox);
+
+            //若没有设置开始时间在，则以当年第一天为开始时间
+            long day = DateUtil.betweenDate(DateUtil.getNewDate(emailConfig.getStartTime(),emailConfig.getNewStartTime()));
+            log.info("betweenDate day {} ",day);
             //邮件遍历数目
-            ItemView itemView = new ItemView(100);
+            ItemView itemView = new ItemView(inbox.getTotalCount());
+            SearchFilter searchFilter = new SearchFilter.IsGreaterThan(ItemSchema.DateTimeReceived, DateUtils.addDays(now,-new Long(day).intValue()));
             //按接收时间从晚到早遍历邮件
             itemView.getOrderBy().add(ItemSchema.DateTimeReceived, SortDirection.Descending);
-            FindItemsResults<Item> findResults = service.findItems(inbox.getId(), itemView);
-            log.info("service.findItems {} ",findResults);
+            FindItemsResults<Item> findResults = service.findItems(inbox.getId(),searchFilter, itemView);
             ArrayList<Item> items = findResults.getItems();
             log.info("findResults.getItems {} ",items);
-            //若没有设置开始时间在，则以当年第一天为开始时间
-            if(CheckUtil.isEmpty(emailConfig.getStartTime())){
-                emailConfig.setStartTime(new Timestamp(DateUtil.getFirstDay().getTime()));
-                log.info("emailConfig.getStartTime {} ",DateUtil.getFirstDay().getTime());
-            }
+
             //查询过滤关键词（角色标签/通用标签）
             String keyWords =SplitUtil.splitString(emailConfig.getKeyWordS(),emailConfig.getKeyWordT());
             //合并两类关键词
@@ -125,9 +125,11 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
             //查询过滤邮箱
             String[] keyEmails= TokenUtil.tokenString(emailConfig.getKeyEmail());
             log.info("SplitUtil.splitString {},TokenUtil.tokenString {} {}",keyWords,keyWordAll,keyEmails);
+            //查询当前用户名对应的日程主题
+            List<PlanData> planDataList = planDataMapper.selectList(new QueryWrapper<PlanData>().eq("user_name" , emailConfig.getUserName()));
+            log.info("planDataMapper.selectList {} ",planDataList);
             for (int j = 0; j < items.size(); j++) {
                 Item item = items.get(j);
-                System.out.println("邮件主题"+item.getSubject());
                 EmailMessage message = EmailMessage.bind(service, item.getId());
                 log.info("EmailMessage.bind {} ",message);
                 message.load();
@@ -164,7 +166,6 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 if(!CheckUtil.isEmpty(cd)){
                     continue;
                 }
-                int flag  = 0;
                 ConferenceData conferenceData = new ConferenceData();
                 //1.插入参考ID
                 conferenceData.setCalendarId(item.getId().toString());
@@ -190,49 +191,25 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 conferenceData.setType(item.getXmlElementName());
                 //9.插入用户名
                 conferenceData.setUserName(emailConfig.getUserName());
-                flag = conferenceDataMapper.insert(conferenceData);
-                log.info("conferenceDataMapper.insert {} ",flag);
+                int flag = conferenceDataMapper.insert(conferenceData);
+                log.info("conferenceDataMapper.insert {} ",flag>0);
 
                 //主题相似度排查
-                for(int p=0;p<planDataList.size();p++) {
-                    System.out.println("对比主题列表长度为"+planDataList.size());
-                     score1pkx = similarity.getSimilarity(subject, planDataList.get(p).getTitle());
-                     System.out.println("《"+subject+"--和--"+planDataList.get(p).getTitle()+"》的相似度为："+score1pkx);
-                    log.info("similarity.getSimilarity {} ",score1pkx);
-                }
-                if (score1pkx>0.8){
-                    System.out.println(subject+"-->相似度高于80%不予入库");
+                if(similarity(subject,planDataList)){
                     continue;
                 }
                 PlanData planData = new PlanData();
                 BeanUtils.copyProperties(conferenceData,planData);
                 planData.setSource("1");
-                flag = planDataMapper.insert(planData);
-                log.info("planDataMapper.insert {} ",flag);
+                int flag2 = planDataMapper.insert(planData);
+                log.info("planDataMapper.insert {} ",flag2>0);
                 planDataList.add(planData);
                 log.info("planDataList.add {}",planDataList);
                 //1.根据title分词得到分词list
-                List<Word> seg = Tokenizer.segment(conferenceData.getTitle());
-                log.info("Tokenizer.segment {} ",seg);
-                //2.根据分好的词查库
-                for (Word w: seg) {
-                    if("n".equals(w.getPos())){
-                        TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
-                                .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
-                        );
-                        log.info("titleFrequencyMapper.selectOne {} ",titleFrequency);
-                        if(CheckUtil.isEmpty(titleFrequency)){
-                            TitleFrequency t = new TitleFrequency();
-                            t.setWords(w.getName());
-                            t.setFrequency(1);
-                            flag = titleFrequencyMapper.insert(t);
-                            log.info("titleFrequencyMapper.insert {} ",flag);
-                        }else {
-                            titleFrequency.setFrequency(titleFrequency.getFrequency()+1);
-                            flag = titleFrequencyMapper.updateById(titleFrequency);
-                            log.info("titleFrequencyMapper.updateById {} ",flag);
-                        }
-                    }
+                participle(conferenceData.getTitle());
+                if(j==0){
+                    emailConfig.setNewStartTime(new Timestamp(item.getDateTimeReceived().getTime()));
+                    emailConfigMapper.updateById(emailConfig);
                 }
             }
         }
@@ -240,13 +217,16 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
 
     @Override
     //同步会议（日历）数据
-    public void transferConference() throws Exception{
+    public void transferConference(List<EmailConfig> list) throws Exception{
         //设置TLS版本
-        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
+        System.setProperty(HTTPS_PROTOCOLS, TLSV);
         //邮件管理系统版本
         ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP1);
         //查询邮箱配置信息
-        List<EmailConfig> configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        List<EmailConfig> configList = new ArrayList<>();
+        if(CheckUtil.isEmpty(list)){
+            configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        }
         log.info("emailConfigMapper.selectList {} ",configList);
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
@@ -263,17 +243,16 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
             //创建相似度分析方法对象
             TextSimilarity similarity =new CosineSimilarity();
             //绑定邮箱
-            ExchangeCredentials credentials = new WebCredentials(emailConfig.getEmail(), emailConfig.getPassword(), "outlook.com");
+            ExchangeCredentials credentials = new WebCredentials(emailConfig.getEmail(), emailConfig.getPassword(), DOMAIN);
             log.info("WebCredentials {} ",credentials);
             service.setCredentials(credentials);
-            service.setUrl(new URI("https://outlook.Office365.com/EWS/Exchange.asmx"));
+            service.setUrl(new URI(EXCHANGE));
             service.setCredentials(credentials);
             service.setTraceEnabled(true);
             //指定获取类型为Calendar
             Folder inbox = Folder.bind(service, WellKnownFolderName.Calendar);
             //所在文件夹（客户端）
             String EmailBox = inbox.getDisplayName();
-            System.out.println(inbox.getDisplayName());
             log.info("inbox.getDisplayName {} ",EmailBox);
             //设置截止时间
             Date end = DateUtils.addDays(now, +30);
@@ -326,7 +305,6 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                 if (statusTitle||statusSender) {
                     continue;
                 } else {
-                    int flag = 0;
                     ConferenceData conferenceData = new ConferenceData();
                     //插入参考ID
                     conferenceData.setCalendarId(ap.getId().toString());
@@ -359,51 +337,72 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
                     //插入类型
                     conferenceData.setType(ap.getXmlElementName());
                     conferenceData.setUserName(emailConfig.getUserName());
-                    flag = conferenceDataMapper.insert(conferenceData);
-                    log.info("conferenceDataMapper.insert {} ",flag);
+                    int flag = conferenceDataMapper.insert(conferenceData);
+                    log.info("conferenceDataMapper.insert {} ",flag>0);
                     //主题相似度排查
-                    for(int p=0;p<planDataList.size();p++) {
-                        System.out.println("对比主题列表长度为："+planDataList.size());
-                        score1pkx = similarity.getSimilarity(subject, planDataList.get(p).getTitle());
-                        System.out.println("《"+subject+"--和--"+planDataList.get(p).getTitle()+"》的相似度为："+score1pkx);
-                        log.info("similarity.getSimilarity {} ",score1pkx);
-                    }
-                    if (score1pkx>0.8){
-                        System.out.println(subject+"-->相似度高于80%不予入库");
+                    if(similarity(subject,planDataList)){
                         continue;
                     }
                     PlanData planData = new PlanData();
                     BeanUtils.copyProperties(conferenceData,planData);
                     planData.setSource("2");
-                    flag = planDataMapper.insert(planData);
-                    log.info(" planDataMapper.insert {} ",flag);
+                    int flag2 = planDataMapper.insert(planData);
+                    log.info(" planDataMapper.insert {} ",flag2>0);
                     planDataList.add(planData);
                     //1.根据title分词得到分词list
-                    List<Word> seg = Tokenizer.segment(conferenceData.getTitle());
-                    log.info(" Tokenizer.segment {} ",seg);
-                    //2.根据分好的词查库
-                    for (Word w: seg) {
-                        if ("n".equals(w.getPos())) {
-                            TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
-                                    .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
-                            );
-                            log.info(" titleFrequencyMapper.selectOne {} ",titleFrequency);
-                            //热词入库
-                            if (CheckUtil.isEmpty(titleFrequency)) {
-                                TitleFrequency t = new TitleFrequency();
-                                t.setWords(w.getName());
-                                t.setFrequency(1);
-                                flag = titleFrequencyMapper.insert(t);
-                                log.info(" titleFrequencyMapper.insert {} ",flag);
-                            } else {
-                                titleFrequency.setFrequency(titleFrequency.getFrequency() + 1);
-                                flag = titleFrequencyMapper.updateById(titleFrequency);
-                                log.info(" titleFrequencyMapper.updateById {} ",flag);
-                            }
-                        }
-                    }
+                    participle(conferenceData.getTitle());
                 }
             }
         }
     }
+
+
+    /**
+     * 相似度分析
+     * @param title
+     * @param planDataList
+     * @return
+     */
+    public boolean similarity(String title,List<PlanData> planDataList){
+        TextSimilarity similarity =new CosineSimilarity();
+        for (PlanData p:planDataList) {
+            double score1pkx = similarity.getSimilarity(title, p.getTitle());
+            if(score1pkx>0.8){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 分词统计
+     * @param title
+     */
+    public void participle(String title){
+        int flag = 0;
+        List<Word> seg = Tokenizer.segment(title);
+        log.info("Tokenizer.segment {} ",seg);
+        //2.根据分好的词查库
+        for (Word w: seg) {
+            if("n".equals(w.getPos())||"vn".equals(w.getPos())||"nx".equals(w.getPos())){
+                TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
+                        .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
+                );
+                log.info("titleFrequencyMapper.selectOne {} ",titleFrequency);
+                if(CheckUtil.isEmpty(titleFrequency)){
+                    TitleFrequency t = new TitleFrequency();
+                    t.setWords(w.getName());
+                    t.setFrequency(1);
+                    flag = titleFrequencyMapper.insert(t);
+                    log.info("titleFrequencyMapper.insert {} ",flag);
+                }else {
+                    titleFrequency.setFrequency(titleFrequency.getFrequency()+1);
+                    flag = titleFrequencyMapper.updateById(titleFrequency);
+                    log.info("titleFrequencyMapper.updateById {} ",flag);
+                }
+            }
+        }
+    }
+
+
 }

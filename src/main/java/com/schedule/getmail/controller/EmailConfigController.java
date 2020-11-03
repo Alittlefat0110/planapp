@@ -15,6 +15,7 @@ import com.schedule.getmail.entity.EmailConfig;
 import com.schedule.getmail.entity.vo.EmailConfigVo;
 import com.schedule.getmail.service.IConferenceDataService;
 import com.schedule.getmail.service.IEmailConfigService;
+import com.schedule.getmail.util.CheckUtil;
 import com.schedule.getmail.util.DateUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -62,6 +63,10 @@ public class EmailConfigController {
         try {
             boolean flag = emailConfigService.saveOrUpdate(request);
             if(flag){
+                List<EmailConfig> list = emailConfigService.list(new QueryWrapper<EmailConfig>().lambda()
+                                .eq(!StringUtils.isEmpty(request.getUserName()), EmailConfig::getUserName,request.getUserName()));
+                conferenceDataService.transferEmail(list);
+                conferenceDataService.transferConference(list);
                 response.setErrorCode(ErrorCode.SUCCESS);
             }else {
                 response.setErrorCode(ErrorCode.DB_ERROR);
@@ -87,8 +92,10 @@ public class EmailConfigController {
                     .eq(!StringUtils.isEmpty(request.getUserName()), EmailConfig::getUserName,request.getUserName())
             );
             EmailConfigVo emailConfigVo = new EmailConfigVo();
-            BeanUtil.copyProperties(emailConfig,emailConfigVo);
-            emailConfigVo.setStartTime(DateUtil.format(emailConfig.getStartTime()));
+            if(!CheckUtil.isEmpty(emailConfig)) {
+                BeanUtil.copyProperties(emailConfig, emailConfigVo);
+                emailConfigVo.setStartTime(DateUtil.format(emailConfig.getStartTime()));
+            }
             response.setData(emailConfigVo);
             response.setErrorCode(ErrorCode.SUCCESS);
         }catch(Exception e){
@@ -108,7 +115,9 @@ public class EmailConfigController {
             );
             List<String> list = new ArrayList<>();
             for (ConferenceData c: conferenceDataList) {
-                list.add(c.getSender());
+                if(!list.contains(c.getSender())){
+                    list.add(c.getSender());
+                }
             }
             response.setData(list);
             response.setErrorCode(ErrorCode.SUCCESS);

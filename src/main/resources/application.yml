@@ -3,6 +3,8 @@ spring:
     name: planapp
   profiles:
     active: dev
+  jackson:
+    time-zone: GMT+8
 
 server:
   servlet:
@@ -26,6 +28,7 @@ logging:
 
 swagger:
   enable: true
+
 
 mybatis-plus:
   configuration:

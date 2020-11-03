@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.schedule.getmail.bean.request.AddDailyPlanRequest;
+import com.schedule.getmail.contentSimilarity.tokenizer.Tokenizer;
+import com.schedule.getmail.contentSimilarity.tokenizer.Word;
 import com.schedule.getmail.entity.PlanData;
+import com.schedule.getmail.entity.TitleFrequency;
 import com.schedule.getmail.entity.vo.HotWordsVo;
 import com.schedule.getmail.entity.vo.HotWordsPlanDataVo;
 import com.schedule.getmail.entity.vo.TimeAxisPlanDataVo;
 import com.schedule.getmail.mapper.PlanDataMapper;
+import com.schedule.getmail.mapper.TitleFrequencyMapper;
 import com.schedule.getmail.service.IPlanDataService;
 import com.schedule.getmail.util.CheckUtil;
 
@@ -39,6 +43,8 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
 
     @Resource
     private PlanDataMapper planDataMapper;
+    @Resource
+    private TitleFrequencyMapper titleFrequencyMapper;
 
     /**
      * 按周查询
@@ -153,6 +159,29 @@ public class PlanDataServiceImpl extends ServiceImpl<PlanDataMapper, PlanData> i
                 log.info("planDataMapper.updateById flag {}",flag);
             }
         }
+        List<Word> seg = Tokenizer.segment(request.getTitle());
+        log.info("Tokenizer.segment {} ",seg);
+        //2.根据分好的词查库
+        for (Word w: seg) {
+            if("n".equals(w.getPos())||"vn".equals(w.getPos())||"nx".equals(w.getPos())){
+                TitleFrequency titleFrequency = titleFrequencyMapper.selectOne(new QueryWrapper<TitleFrequency>().lambda()
+                        .eq(!StringUtils.isEmpty(w.getName()), TitleFrequency::getWords, w.getName())
+                );
+                log.info("titleFrequencyMapper.selectOne {} ",titleFrequency);
+                if(CheckUtil.isEmpty(titleFrequency)){
+                    TitleFrequency t = new TitleFrequency();
+                    t.setWords(w.getName());
+                    t.setFrequency(1);
+                    int flag2 = titleFrequencyMapper.insert(t);
+                    log.info("titleFrequencyMapper.insert {} ",flag2);
+                }else {
+                    titleFrequency.setFrequency(titleFrequency.getFrequency()+1);
+                    int flag3 = titleFrequencyMapper.updateById(titleFrequency);
+                    log.info("titleFrequencyMapper.updateById {} ",flag3);
+                }
+            }
+        }
+
         log.info("planData saveOrUpdate end! flag {}",flag>0);
         return flag > 0;
     }
