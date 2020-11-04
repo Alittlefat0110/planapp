@@ -92,6 +92,8 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
         List<EmailConfig> configList = new ArrayList<>();
         if(CheckUtil.isEmpty(list)){
             configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        }else {
+            configList = list;
         }
         log.info("emailConfigMapper.selectList {} ",configList);
         //获取当前时间
@@ -226,6 +228,8 @@ public class ConferenceDataServiceImpl extends ServiceImpl<ConferenceDataMapper,
         List<EmailConfig> configList = new ArrayList<>();
         if(CheckUtil.isEmpty(list)){
             configList = emailConfigMapper.selectList(new QueryWrapper<EmailConfig>());
+        }else {
+            configList = list;
         }
         log.info("emailConfigMapper.selectList {} ",configList);
         //获取当前时间
