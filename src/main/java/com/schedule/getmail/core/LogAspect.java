@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,6 +15,7 @@ import java.lang.reflect.Method;
 
 /**
  * 记录controller的调用日志
+ *
  * @author StrTom
  * @since 2020-10-28
  */
@@ -31,18 +30,18 @@ public class LogAspect {
     }
 
     @Before("logger()")
-    public void before(JoinPoint joinPoint){
+    public void before(JoinPoint joinPoint) {
         timeTreadLocal.set(System.currentTimeMillis());
         // 接收到请求，记录请求内容
-        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         //获取请求的request
         HttpServletRequest request = attributes.getRequest();
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         //获取被拦截的方法
         Method method = methodSignature.getMethod();
         //获取被拦截的方法名
         String methodName = method.getName();
-        log.info("Aop begin,请求开始方法：{}",method.getDeclaringClass() +"." + methodName + "()");
+        log.info("Aop begin,请求开始方法：{}", method.getDeclaringClass() + "." + methodName + "()");
         //获取所有请求参数key 和 value
         String keyValue = Utils.getReqParameter(request);
         log.info("请求url = {}", request.getRequestURL().toString());
@@ -50,7 +49,7 @@ public class LogAspect {
         log.info("请求方法requestMethod = {}", request.getMethod());
         log.info("请求资源uri = {}", request.getRequestURI());
         log.info("所有的请求参数 key：value = {}", keyValue);
-        log.info("agent = {}",request.getHeader("user-agent"));
+        log.info("agent = {}", request.getHeader("user-agent"));
 
         //可以对日志进行入库
 
@@ -65,12 +64,12 @@ public class LogAspect {
      */
     @AfterReturning(returning = "result", pointcut = "logger()")
     public Object afterReturn(Object result) {
-        if(!CheckUtil.isEmpty(result)){
+        if (!CheckUtil.isEmpty(result)) {
             long startTime = timeTreadLocal.get();
             double callTime = (System.currentTimeMillis() - startTime) / 1000.0;
             log.info("调用controller花费时间time = {}s", callTime);
             return result;
-        }else {
+        } else {
             return null;
         }
     }

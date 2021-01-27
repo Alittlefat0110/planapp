@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.schedule.getmail.util.CheckUtil;
 import com.schedule.getmail.util.DateUtil;
 import lombok.Data;
@@ -74,29 +75,34 @@ public class PlanData implements Serializable {
      * 会议开始时间
      */
     @TableField(strategy = FieldStrategy.IGNORED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date startTime;
 
     /**
      * 会议结束时间
      */
     @TableField(strategy = FieldStrategy.IGNORED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date endTime;
 
     /**
      * 接收时间
      */
     @TableField(strategy = FieldStrategy.IGNORED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date receiveTime;
 
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp createTime;
 
     /**
      * 更新时间
      */
     @TableField(strategy = FieldStrategy.IGNORED)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp updateTime;
 
     /**
@@ -105,26 +111,25 @@ public class PlanData implements Serializable {
     private String source;
 
 
-    @TableField(exist=false)
+    @TableField(exist = false)
     private String time;
 
-    @TableField(exist=false)
+    @TableField(exist = false)
     private String week;
 
-    public String getTime(){
-        if(!CheckUtil.isEmpty(startTime)){
+    public String getTime() {
+        if (!CheckUtil.isEmpty(startTime)) {
             return DateUtil.formatHHMMSS(startTime);
         }
         return "";
     }
 
-    public String getWeek(){
-        if(!CheckUtil.isEmpty(startTime)){
+    public String getWeek() {
+        if (!CheckUtil.isEmpty(startTime)) {
             return DateUtil.dateToWeek(startTime);
         }
         return "";
     }
-
 
 
 }

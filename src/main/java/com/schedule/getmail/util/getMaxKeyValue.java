@@ -21,6 +21,7 @@ public class getMaxKeyValue {
         Set<Word> set = map.keySet();
         Object[] obj = set.toArray();
         Arrays.sort(obj);
-        return obj[obj.length-1];}
+        return obj[obj.length - 1];
+    }
 
 }

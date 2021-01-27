@@ -152,7 +152,7 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.70</version>
 		</dependency>
-		<!--Aop-->
+		<!--切片Aop-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
@@ -183,7 +183,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
+				<version>3.1.0</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<useDefaultDelimiters>true</useDefaultDelimiters>

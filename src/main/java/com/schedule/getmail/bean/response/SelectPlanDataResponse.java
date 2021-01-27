@@ -9,6 +9,6 @@ import java.util.List;
  * PlanData 结果返回
  */
 @Data
-public class SelectPlanDataResponse  extends BaseResponse{
+public class SelectPlanDataResponse extends BaseResponse {
     private List<PlanData> data;
 }

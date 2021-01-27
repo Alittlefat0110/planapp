@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 /**
  * <p>
  * 邮箱配置表
+ * 与前端对接
  * </p>
  *
  * @author StrTom
@@ -29,6 +30,8 @@ public class EmailConfigVo implements Serializable {
 
     /**
      * 邮箱配置ID
+     * “value”：设置数据库字段值
+     * “type”：设置主键类型、如果数据库主键设置了自增建议使用“AUTO”
      */
     @TableId(value = "email_id", type = IdType.AUTO)
     private Long emailId;
@@ -51,6 +54,7 @@ public class EmailConfigVo implements Serializable {
     /**
      * 部门
      */
+    //字段验证，传入null值时允许更新，忽略null值的判断（mybatis-plus默认传入null值不更新）
     @TableField(strategy = FieldStrategy.IGNORED)
     private String department;
 
@@ -92,11 +96,13 @@ public class EmailConfigVo implements Serializable {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Timestamp createTime;
 
     /**
      * 更新时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Timestamp updateTime;
 
     /**

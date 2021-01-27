@@ -34,13 +34,14 @@ public class SwaggerApp {
                 .build();
 //        return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class)).build();
     }
+
     //构建 api文档的详细信息函数,注意这里的注解引用的是哪个
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 //页面标题
                 .title("GETMAIL")
                 //创建人
-                .contact(new Contact("GETMAIL", "http://localhost:8080/swagger-ui.html#/", "8080"))
+                .contact(new Contact("GETMAIL", "http://localhost:8081/swagger-ui.html#/", "8081"))
                 //版本号
                 .version("1.0")
                 //描述

@@ -8,6 +8,7 @@ import com.schedule.getmail.entity.EmailConfig;
  * <p>
  * 邮箱配置表 服务类
  * </p>
+ *
  * @author StrTom
  * @since 2020-10-28
  */

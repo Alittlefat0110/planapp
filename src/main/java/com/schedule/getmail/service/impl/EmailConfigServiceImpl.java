@@ -20,6 +20,7 @@ import java.sql.Timestamp;
  * <p>
  * 邮箱配置表 服务实现类
  * </p>
+ *
  * @author StrTom
  * @since 2020-10-28
  */
@@ -32,23 +33,26 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
 
     @Override
     public boolean saveOrUpdate(AddEmailConfigRequest request) {
-        log.info("emailConfig saveOrUpdate start! {}",request);
-        int flag  = 0;
+        log.info("emailConfig saveOrUpdate start! {}", request);
+        int flag = 0;
         //根据userName判断是否已经绑定
         String username = request.getUserName();
         //获取当前时间
         Timestamp time = new Timestamp(System.currentTimeMillis());
-        EmailConfig emailConfig1 = emailConfigMapper.selectOne(new QueryWrapper<EmailConfig>().lambda()
-                .eq(!StringUtils.isEmpty(username), EmailConfig::getUserName,username)
+        //根据username查库（先判空）
+        EmailConfig emailConfig1 = emailConfigMapper.selectOne(new QueryWrapper<EmailConfig>()
+                .lambda()
+                .eq(!StringUtils.isEmpty(username), EmailConfig::getUserName, username)
         );
-        log.info("emailConfigMapper.selectOne {} , request.getUserName {} ",emailConfig1,username);
-        if(CheckUtil.isEmpty(emailConfig1)){
+        log.info("emailConfigMapper.selectOne {} , request.getUserName {} ", emailConfig1, username);
+        //若根据传入的username查库为空，则直接插入
+        if (CheckUtil.isEmpty(emailConfig1)) {
             EmailConfig emailConfig = new EmailConfig();
-            BeanUtils.copyProperties(request,emailConfig);
+            BeanUtils.copyProperties(request, emailConfig);
             //添加邮箱同步开始时间
             String startTime = request.getStartTime();
             Timestamp startTimeTimestamp = null;
-            if(!CheckUtil.isEmpty(startTime)){
+            if (!CheckUtil.isEmpty(startTime)) {
                 startTimeTimestamp = Timestamp.valueOf(request.getStartTime());
             }
             emailConfig.setStartTime(startTimeTimestamp);
@@ -58,29 +62,30 @@ public class EmailConfigServiceImpl extends ServiceImpl<EmailConfigMapper, Email
             emailConfig.setUpdateTime(time);
             //密码加密方式
             emailConfig.setEncrypt("1");
-            flag =  emailConfigMapper.insert(emailConfig);
-            log.info("emailConfigMapper.insert  {} ",flag);
-        }else {
+            flag = emailConfigMapper.insert(emailConfig);
+            log.info("emailConfigMapper.insert  {} ", flag);
+        } else {
             //添加邮箱同步开始时间
             String startTime = request.getStartTime();
             Timestamp startTimeTimestamp = null;
-            if(!CheckUtil.isEmpty(startTime)){
+            if (!CheckUtil.isEmpty(startTime)) {
                 startTimeTimestamp = Timestamp.valueOf(request.getStartTime());
             }
             emailConfig1.setStartTime(startTimeTimestamp);
             //添加过滤关键词
-            BeanUtils.copyProperties(request,emailConfig1);
+            BeanUtils.copyProperties(request, emailConfig1);
             //更新时间
             emailConfig1.setUpdateTime(time);
             //密码加密方式
             emailConfig1.setEncrypt("1");
-            if(emailConfig1.getStartTime().getTime()!=startTimeTimestamp.getTime()){
+            //若传入的开始时间与此前不同，则将新时间插入NewStartTime字段
+            if (emailConfig1.getStartTime().getTime() != startTimeTimestamp.getTime()) {
                 emailConfig1.setNewStartTime(startTimeTimestamp);
             }
-            flag =  emailConfigMapper.updateById(emailConfig1);
-            log.info("emailConfigMapper.updateById  {} ",flag);
+            flag = emailConfigMapper.updateById(emailConfig1);
+            log.info("emailConfigMapper.updateById  {} ", flag);
         }
-        log.info("emailConfig saveOrUpdate end! {}",flag>0);
+        log.info("emailConfig saveOrUpdate end! {}", flag > 0);
         return flag > 0;
     }
 }

@@ -10,10 +10,10 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class SelectEmailConfigRequest {
 
-     /**
-      * 所属用户
-      */
-     @ApiModelProperty("用户名")
-     @NotBlank(message = "用户名不能为空")
-     String userName;
+    /**
+     * 所属用户
+     */
+    @ApiModelProperty("用户名")
+    @NotBlank(message = "用户名不能为空")
+    String userName;
 }

@@ -16,6 +16,7 @@ import java.util.List;
  */
 public interface IConferenceDataService extends IService<ConferenceData> {
     //从邮箱拉取会议信息到会议数据表
-    void transferEmail(List<EmailConfig> list)  throws Exception;
-    void transferConference(List<EmailConfig> list)  throws Exception;
+    void transferEmail(List<EmailConfig> list) throws Exception;
+
+    void transferConference(List<EmailConfig> list) throws Exception;
 }

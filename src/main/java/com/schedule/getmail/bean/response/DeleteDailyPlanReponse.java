@@ -6,5 +6,5 @@ import lombok.Data;
  * 删除日程接口 Response
  */
 @Data
-public class DeleteDailyPlanReponse extends BaseResponse{
+public class DeleteDailyPlanReponse extends BaseResponse {
 }

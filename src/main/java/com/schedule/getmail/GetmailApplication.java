@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @SpringBootApplication
 public class GetmailApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GetmailApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GetmailApplication.class, args);
+    }
 
 }

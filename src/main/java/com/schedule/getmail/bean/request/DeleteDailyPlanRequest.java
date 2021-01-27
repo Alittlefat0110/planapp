@@ -11,16 +11,17 @@ import java.util.List;
  */
 @Data
 public class DeleteDailyPlanRequest {
-     /**
-      * 所属用户
-      */
-     @ApiModelProperty("用户名")
-     @NotBlank(message = "用户名不能为空")
-     String userName;
-     /**
-      * 所属用户
-      */
-     @ApiModelProperty("planId")
-     @NotBlank(message = "planId不能为空")
-     String planId;;
+    /**
+     * 所属用户
+     */
+    @ApiModelProperty("用户名")
+    @NotBlank(message = "用户名不能为空")
+    String userName;
+    /**
+     * 所属用户
+     */
+    @ApiModelProperty("planId")
+    @NotBlank(message = "planId不能为空")
+    String planId;
+    ;
 }

@@ -4,7 +4,7 @@ import com.schedule.getmail.contentSimilarity.tokenizer.Word;
 
 import java.util.HashMap;
 
-public class MyhashMap extends HashMap<Word,Integer> {
+public class MyhashMap extends HashMap<Word, Integer> {
     @Override
     public Integer put(Word key, Integer value) {
 
@@ -12,13 +12,13 @@ public class MyhashMap extends HashMap<Word,Integer> {
         Integer NewVaule = value;
 
         //containsKey  判断这个 key  是否已经存在？
-        if (containsKey(key)){
+        if (containsKey(key)) {
 
             // 获得旧的value 值
             Integer oldValue = get(key);
 
             //将旧值 和 后面put 的新值拼接起来
-            NewVaule = oldValue +NewVaule;
+            NewVaule = oldValue + NewVaule;
         }
 
         // 返回拼接后的newvalue

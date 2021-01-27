@@ -18,6 +18,7 @@ import java.util.List;
  * <p>
  * 日程主题名词词频统计表 前端控制器
  * </p>
+ *
  * @author StrTom
  * @since 2020-10-28
  */
@@ -30,12 +31,13 @@ public class TitleFrequencyController {
 
     /**
      * 获取前十热词
+     *
      * @return
      */
-    @ApiOperation(value = "查询前热词前10接口", notes="查询前热词前10接口")
-    @PostMapping(value = "/dailyPlanTitle/getHotWord",produces ="application/json;charset=utf-8" )
-    public SelectHotWordsResponse listHotWord(){
-        SelectHotWordsResponse response=new SelectHotWordsResponse();
+    @ApiOperation(value = "查询前热词前10接口", notes = "查询前热词前10接口")
+    @PostMapping(value = "/dailyPlanTitle/getHotWord", produces = "application/json;charset=utf-8")
+    public SelectHotWordsResponse listHotWord() {
+        SelectHotWordsResponse response = new SelectHotWordsResponse();
         List<TitleFrequency> list = titleFrequencyService.list(new QueryWrapper<TitleFrequency>().lambda()
                 .orderByDesc(TitleFrequency::getFrequency)
                 .last("limit 10")
@@ -43,7 +45,6 @@ public class TitleFrequencyController {
         response.setData(list);
         return response;
     }
-
 
 
 }

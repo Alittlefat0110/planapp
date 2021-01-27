@@ -38,14 +38,14 @@ public class AddEmailConfigRequest {
      * 部门
      */
     @ApiModelProperty("部门")
-    @NotBlank(message = "部门不能为空")
+    //@NotBlank(message = "部门不能为空")
     private String department;
 
     /**
      * 岗位
      */
     @ApiModelProperty("岗位")
-    @NotBlank(message = "岗位不能为空")
+    //@NotBlank(message = "岗位不能为空")
     private String station;
 
     /**

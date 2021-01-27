@@ -18,8 +18,8 @@ server:
     basedir: ../tmp/tomcat.${spring.application.name}.${server.port}
 
 mybatis:
-  mapper-locations : classpath:mybatis/mapper/*.xml
-  type-aliases-package : com.schedule.getmail.entity
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.schedule.getmail.entity
   config-location: classpath:mybatis/mybatis-config.xml
 
 logging:
@@ -29,7 +29,7 @@ logging:
 swagger:
   enable: true
 
-
+#打印sql执行条目
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

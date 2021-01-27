@@ -20,6 +20,7 @@ public interface IPlanDataService extends IService<PlanData> {
 
     /**
      * 查询时间轴
+     *
      * @param username
      * @param pageIndex
      * @return
@@ -27,7 +28,8 @@ public interface IPlanDataService extends IService<PlanData> {
     List<TimeAxisPlanDataVo> selectByTimeRange(String username, int pageIndex);
 
     /**
-     *查询日历程
+     * 查询日历程
+     *
      * @param username
      * @return
      */
@@ -35,6 +37,7 @@ public interface IPlanDataService extends IService<PlanData> {
 
     /**
      * 新增、修改
+     *
      * @param request
      * @return
      */
@@ -42,6 +45,7 @@ public interface IPlanDataService extends IService<PlanData> {
 
     /**
      * 根据热词查询
+     *
      * @param words
      * @return
      */
